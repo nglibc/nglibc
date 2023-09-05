@@ -1,1 +1,1 @@
-#include "../elf/tst-execstack-mod.c"
+#include <elf/tst/tst-execstack-mod.c>

@@ -20,6 +20,8 @@
 #
 subdir	:= wcsmbs
 
+vpath %.c     tst
+
 include ../Makeconfig
 
 headers	:= wchar.h bits/wchar.h bits/wchar2.h bits/wchar2-decl.h \

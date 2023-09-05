@@ -18,7 +18,9 @@
 #
 #	Sub-makefile for I/O portion of the library.
 #
-subdir	:= io
+subdir	:= file
+
+vpath %.c     tst
 
 include ../Makeconfig
 
@@ -150,11 +152,11 @@ tst-open-tmpfile-ARGS = --test-dir=$(objpfx)
 CFLAGS-ftwtest-time64.c += -D_TIME_BITS=64 -D_FILE_OFFSET_BITS=64
 
 ifeq ($(run-built-tests),yes)
-$(objpfx)ftwtest.out: ftwtest-sh $(objpfx)ftwtest
+$(objpfx)ftwtest.out: tst/ftwtest-sh $(objpfx)ftwtest
 	$(SHELL) $< $(common-objpfx) '$(test-program-cmd)' > $@; \
 	$(evaluate-test)
 
-$(objpfx)ftwtest-time64.out: ftwtest-sh $(objpfx)ftwtest-time64
+$(objpfx)ftwtest-time64.out: tst/ftwtest-sh $(objpfx)ftwtest-time64
 	$(SHELL) $< $(common-objpfx) '$(test-program-cmd)' > $@; \
 	$(evaluate-test)
 endif

@@ -20,6 +20,8 @@
 #
 subdir	:= resolv
 
+vpath %.c     tst
+
 include ../Makeconfig
 
 headers	:= resolv.h bits/types/res_state.h \

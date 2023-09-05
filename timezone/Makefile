@@ -20,6 +20,8 @@
 #
 subdir	:= timezone
 
+vpath %.c     tst
+
 include ../Makeconfig
 
 others	:= zdump zic

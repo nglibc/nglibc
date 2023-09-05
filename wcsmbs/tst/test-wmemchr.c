@@ -17,4 +17,4 @@
    <https://www.gnu.org/licenses/>.  */
 
 #define WIDE 1
-#include "../string/test-memchr.c"
+#include <string/tst/test-memchr.c>

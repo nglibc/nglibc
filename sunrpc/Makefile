@@ -20,6 +20,8 @@
 #
 subdir	:= sunrpc
 
+vpath %.c     tst
+
 include ../Makeconfig
 
 ifdef have-GLIBC_2.31

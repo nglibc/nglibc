@@ -22,7 +22,7 @@ subdir	:= nss
 
 include ../Makeconfig
 
-headers			:= nss.h
+headers	:= nss.h
 
 # This is the trivial part which goes into libc itself.
 routines		= nsswitch getnssent getnssent_r digits_dots \
@@ -108,7 +108,7 @@ extra-libs-others	= $(extra-libs)
 
 # The sources are found in the appropriate subdir.
 subdir-dirs = $(services:%=nss_%)
-vpath %.c $(subdir-dirs) ../locale/programs ../intl
+vpath %.c tst $(subdir-dirs) ../locale/programs ../intl
 
 
 routines += \

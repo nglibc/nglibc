@@ -26,7 +26,7 @@
 #include <error.h>
 #include <stdarg.h>
 #include <stdio.h>
-#include <stdio/strfile.h>
+#include <libio/strfile.h>
 #include <math.h>
 #include <wchar.h>
 #include <printf.h>

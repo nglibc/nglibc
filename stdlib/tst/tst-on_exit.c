@@ -19,4 +19,4 @@
 #define ATEXIT(fn) on_exit ((void (*) (int, void *)) fn, (void *) 0)
 #define EXIT(x) exit (x)
 
-#include <stdlib/tst-atexit-common.c>
+#include "tst-atexit-common.c"

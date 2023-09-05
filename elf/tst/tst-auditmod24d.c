@@ -20,7 +20,7 @@
 #include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
-#include <tst-auditmod24.h>
+#include "tst-auditmod24.h"
 
 #define AUDIT24_COOKIE     0x0
 #define AUDIT24MOD1_COOKIE 0x1

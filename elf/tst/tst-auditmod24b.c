@@ -20,7 +20,7 @@
 #include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
-#include <tst-auditmod24.h>
+#include "tst-auditmod24.h"
 
 #define TEST_NAME "tst-audit24b"
 #define TEST_FUNC "tst_audit24b"

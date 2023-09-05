@@ -18,6 +18,9 @@
 # Makefile for the math library.
 
 subdir		:= math
+vpath %.c     tst
+vpath %.cc    tst
+vpath %.inc   tst
 
 include ../Makeconfig
 
@@ -282,9 +285,9 @@ extra-test-objs += $(addsuffix .o, $(libm-vec-test-wrappers))
 
 ulps-file = $(firstword $(wildcard $(sysdirs:%=%/libm-test-ulps)))
 
-$(objpfx)libm-test-ulps.h: $(ulps-file) gen-libm-test.py
+$(objpfx)libm-test-ulps.h: $(ulps-file) tst/gen-libm-test.py
 	$(make-target-directory)
-	$(PYTHON) gen-libm-test.py -u $< -H $@
+	$(PYTHON) tst/gen-libm-test.py -u $< -H $@
 
 libm-test-funcs-auto = acos acosh asin asinh atan atan2 atanh cabs cacos \
 		       cacosh carg casin casinh catan catanh cbrt ccos ccosh \
@@ -348,21 +351,21 @@ libm-test-c-noauto-obj = $(addprefix $(objpfx),$(libm-test-c-noauto))
 libm-test-c-narrow-obj = $(addprefix $(objpfx),$(libm-test-c-narrow))
 
 $(libm-test-c-noauto-obj): $(objpfx)libm-test%.c: libm-test%.inc \
-						  gen-libm-test.py
+						  tst/gen-libm-test.py
 	$(make-target-directory)
-	touch $(objpfx)/math_null_file ; $(PYTHON) gen-libm-test.py -c $< -a $(objpfx)/math_null_file -C $@
+	touch $(objpfx)/math_null_file ; $(PYTHON) tst/gen-libm-test.py -c $< -a $(objpfx)/math_null_file -C $@
 
 $(libm-test-c-auto-obj): $(objpfx)libm-test%.c: libm-test%.inc \
-						gen-libm-test.py \
-						auto-libm-test-out%
+						tst/gen-libm-test.py \
+						tst/auto-libm-test-out%
 	$(make-target-directory)
-	$(PYTHON) gen-libm-test.py -c $< -a auto-libm-test-out$* -C $@
+	$(PYTHON) tst/gen-libm-test.py -c $< -a tst/auto-libm-test-out$* -C $@
 
 $(libm-test-c-narrow-obj): $(objpfx)libm-test%.c: libm-test%.inc \
-						  gen-libm-test.py \
-						  auto-libm-test-out%
+						  tst/gen-libm-test.py \
+						  tst/auto-libm-test-out%
 	$(make-target-directory)
-	$(PYTHON) gen-libm-test.py -c $< -a auto-libm-test-out$* -C $@
+	$(PYTHON) tst/gen-libm-test.py -c $< -a tst/auto-libm-test-out$* -C $@
 
 # Tests for totalorder compat symbols reuse the table of tests as
 # processed by gen-libm-test.py, so add dependencies on the generated
@@ -395,13 +398,13 @@ $(tgmath3-macro-tests:%=$(objpfx)%.o): CFLAGS += -fno-builtin
 
 $(foreach m,$(tgmath3-macros),\
 	    $(objpfx)test-tgmath3-$(m).c): $(objpfx)test-tgmath3-%.c: \
-					   gen-tgmath-tests.py
-	$(PYTHON) gen-tgmath-tests.py $* > $@
+					   tst/gen-tgmath-tests.py
+	$(PYTHON) tst/gen-tgmath-tests.py $* > $@
 
 # Verify that the list of supported macros is in sync between the
 # Makefile and gen-tgmath-tests.py.
 tests-special += $(objpfx)test-tgmath3-macro-list.out
-$(objpfx)test-tgmath3-macro-list.out: gen-tgmath-tests.py
+$(objpfx)test-tgmath3-macro-list.out: tst/gen-tgmath-tests.py
 	$(PYTHON) $< check-list $(tgmath3-macros) > $@; \
 	$(evaluate-test)
 
@@ -606,7 +609,7 @@ regen-ulps: $(addprefix $(objpfx),$(libm-tests))
 	  cat $(objpfx)ULPs >> $(objpfx)libm-test-ulps; \
 	  rm $(objpfx)ULPs; \
 	done; \
-	$(PYTHON) gen-libm-test.py -n $(objpfx)NewUlps \
+	$(PYTHON) tst/gen-libm-test.py -n $(objpfx)NewUlps \
 				   -u $(objpfx)libm-test-ulps; \
 	echo "Automatic regeneration of ULPs complete."; \
 	echo "Difference between the current baseline and the new baseline is:";\

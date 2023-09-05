@@ -17,7 +17,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <tst-stack-align.h>
+#include "tst-stack-align.h"
 
 struct item
 {

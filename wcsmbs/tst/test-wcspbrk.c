@@ -17,4 +17,4 @@
    <https://www.gnu.org/licenses/>.  */
 
 #define WIDE 1
-#include "../string/test-strpbrk.c"
+#include <string/tst/test-strpbrk.c>

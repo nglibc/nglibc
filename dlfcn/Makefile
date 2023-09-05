@@ -17,6 +17,10 @@
 
 subdir		:= dlfcn
 
+vpath %.c     tst
+
+vpath %.cc    tst
+
 include ../Makeconfig
 
 headers		:= bits/dlfcn.h bits/dl_find_object.h dlfcn.h

@@ -18,7 +18,11 @@
 #
 #	Specific makefile for stdio-common.
 #
-subdir	:= stdio-common
+subdir := stdio-common
+vpath %.c      ../stdio/tst-misc ../stdio/tst-printf
+vpath %.sh     ../stdio/tst-misc ../stdio/tst-printf
+vpath %.input  ../stdio/tst-misc ../stdio/tst-printf
+vpath %.expect ../stdio/tst-misc ../stdio/tst-printf
 
 include ../Makeconfig
 
@@ -381,10 +385,10 @@ $(objpfx)tst-%-mem.out: $(objpfx)tst-%.out
 
 errlist-h = $(firstword $(wildcard $(addsuffix /errlist.h,$(sysdirs) .)))
 
-$(objpfx)tst-errno-manual.out: tst-errno-manual.py \
+$(objpfx)tst-errno-manual.out: ../stdio/tst-misc/tst-errno-manual.py \
 			       $(errlist-h) \
 			       $(..)manual/errno.texi
-	$(PYTHON) tst-errno-manual.py -m $(..)manual/errno.texi \
+	$(PYTHON) ../stdio/tst-misc/tst-errno-manual.py -m $(..)manual/errno.texi \
 				      -e $(errlist-h) > $@; \
 	$(evaluate-test)
 

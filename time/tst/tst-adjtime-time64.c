@@ -1,1 +1,1 @@
-#include <tst-adjtime.c>
+#include "tst-adjtime.c"

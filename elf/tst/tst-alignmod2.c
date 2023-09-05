@@ -17,7 +17,7 @@
 
 #include <stdbool.h>
 #include <stdio.h>
-#include <tst-stack-align.h>
+#include "tst-stack-align.h"
 #include <unistd.h>
 
 static int res, *fdp;

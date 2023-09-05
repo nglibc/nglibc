@@ -1,1 +1,1 @@
-#include <tst-clock_settime.c>
+#include "tst-clock_settime.c"

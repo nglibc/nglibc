@@ -17,6 +17,8 @@
 
 subdir := resource
 
+vpath %.c     tst
+
 include ../Makeconfig
 
 headers	  := sys/resource.h bits/resource.h sys/vlimit.h	\

@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <search.h>
-#include <tst-stack-align.h>
+#include "tst-stack-align.h"
 #include <support/check.h>
 
 #define SEED 0

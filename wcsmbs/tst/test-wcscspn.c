@@ -17,4 +17,4 @@
    <https://www.gnu.org/licenses/>.  */
 
 #define WIDE 1
-#include "../string/test-strcspn.c"
+#include <string/tst/test-strcspn.c>

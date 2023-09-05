@@ -20,6 +20,12 @@
 #
 subdir	:= locale
 
+vpath %.c     tst
+
+vpath %.c     tst
+
+vpath %.sh    tst
+
 include ../Makeconfig
 
 headers		= langinfo.h locale.h bits/locale.h \

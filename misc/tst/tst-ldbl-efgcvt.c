@@ -25,4 +25,4 @@
 
 #define EXTRA_ECVT_TESTS
 
-#include <tst-efgcvt-template.c>
+#include "tst-efgcvt-template.c"

@@ -104,7 +104,7 @@ la_symbind64 (Elf64_Sym *sym, unsigned int ndx, uintptr_t *refcook,
   return sym->st_value;
 }
 
-#include <tst-audit.h>
+#include "tst-audit.h"
 #if (!defined (pltenter) || !defined (pltexit) || !defined (La_regs) \
      || !defined (La_retval) || !defined (int_retval))
 # error "architecture specific code needed in sysdeps/CPU/tst-audit.h"

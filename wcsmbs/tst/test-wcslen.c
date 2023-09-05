@@ -1,2 +1,2 @@
 #define WIDE 1
-#include "../string/test-strlen.c"
+#include <string/tst/test-strlen.c>

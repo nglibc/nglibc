@@ -19,6 +19,10 @@
 #	Makefile for stdlib routines
 #
 subdir	:= stdlib
+vpath %.c     tst
+vpath %.cc    tst
+vpath %.sh    tst
+vpath %.input tst
 
 include ../Makeconfig
 

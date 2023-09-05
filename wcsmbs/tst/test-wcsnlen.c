@@ -17,4 +17,4 @@
    <https://www.gnu.org/licenses/>.  */
 
 #define WIDE 1
-#include "../string/test-strnlen.c"
+#include <string/tst/test-strnlen.c>

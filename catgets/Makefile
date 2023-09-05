@@ -19,6 +19,9 @@
 #	Makefile for catgets.
 #
 subdir	:= catgets
+vpath %.c     tst
+vpath %.sh    tst
+vpath %.msg   tst
 
 include ../Makeconfig
 
@@ -89,7 +92,7 @@ $(objpfx)test-gencat.out: test-gencat.sh $(objpfx)test-gencat \
 		 '$(run-program-env)' '$(test-program-cmd-after-env)'; \
 	$(evaluate-test)
 
-$(objpfx)sample.SJIS.cat: sample.SJIS $(objpfx)gencat
+$(objpfx)sample.SJIS.cat: tst/sample.SJIS $(objpfx)gencat
 	$(built-program-cmd) -H $(objpfx)test-gencat.h < $(word 1,$^) > $@; \
 	$(evaluate-test)
 

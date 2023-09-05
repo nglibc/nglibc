@@ -20,7 +20,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <support/check.h>
-#include <tst-file-align.h>
+#include "tst-file-align.h"
 #include "tst-p_align.h"
 
 int foo __attribute__ ((aligned (ALIGN))) = 1;

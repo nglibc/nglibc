@@ -20,6 +20,8 @@
 #
 subdir	:= shadow
 
+vpath %.c     tst
+
 include ../Makeconfig
 
 headers		= shadow.h

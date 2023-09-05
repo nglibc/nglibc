@@ -1,1 +1,1 @@
-#include <posix/tst-vfork1.c>
+#include <posix/tst/tst-vfork1.c>

@@ -20,6 +20,8 @@
 #
 subdir	:= socket
 
+vpath %.c     tst
+
 include ../Makeconfig
 
 headers	:= sys/socket.h sys/un.h bits/sockaddr.h bits/socket.h \

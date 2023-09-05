@@ -23,7 +23,7 @@
 #endif /* WIDE */
 
 #define TEST_MAIN
-#include <string/test-string.h>
+#include <string/tst/test-string.h>
 
 #ifdef WIDE
 # include <wchar.h>

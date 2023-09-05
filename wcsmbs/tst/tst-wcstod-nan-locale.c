@@ -22,4 +22,4 @@
 #define FNPFX wcsto
 #define L_(C) L ## C
 
-#include "../stdlib/tst-strtod-nan-locale-main.c"
+#include <stdlib/tst/tst-strtod-nan-locale-main.c>

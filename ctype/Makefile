@@ -20,6 +20,8 @@
 #
 subdir	:= ctype
 
+vpath %.c     tst
+
 include ../Makeconfig
 
 headers	:= ctype.h

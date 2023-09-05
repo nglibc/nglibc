@@ -20,6 +20,10 @@
 #
 subdir	:= assert
 
+vpath %.cc    tst
+
+vpath %.c     tst
+
 include ../Makeconfig
 
 headers	:= assert.h

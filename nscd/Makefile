@@ -20,6 +20,8 @@
 #
 subdir	:= nscd
 
+vpath %.c     tst
+
 include ../Makeconfig
 
 ifneq ($(use-nscd),no)

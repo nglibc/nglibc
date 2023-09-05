@@ -1,2 +1,2 @@
 #define USE_PTHREADS 1
-#include "../elf/tst-unwind-main.c"
+#include <elf/tst/tst-unwind-main.c>

@@ -19,6 +19,7 @@
 #	Makefile for signal routines.
 #
 subdir	:= signal
+vpath %.c     tst
 
 include ../Makeconfig
 

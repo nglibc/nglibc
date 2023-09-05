@@ -20,6 +20,8 @@
 #
 subdir		:= dirent
 
+vpath %.c     tst
+
 include ../Makeconfig
 
 headers		:= dirent.h bits/dirent.h bits/dirent_ext.h

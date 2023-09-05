@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ucontext.h>
-#include <tst-stack-align.h>
+#include "tst-stack-align.h"
 
 ucontext_t ucp, ucp2;
 char st1[262144] __attribute__((aligned (16)));

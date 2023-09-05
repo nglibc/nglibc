@@ -20,4 +20,4 @@
 #define FNPFX wcsto
 #define L_(C) L ## C
 
-#include "../stdlib/tst-strtod-nan-sign-main.c"
+#include <stdlib/tst/tst-strtod-nan-sign-main.c>

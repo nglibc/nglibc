@@ -20,6 +20,8 @@
 #
 subdir	:= sysvipc
 
+vpath %.c     tst
+
 include ../Makeconfig
 
 headers	:= sys/ipc.h sys/msg.h sys/sem.h sys/shm.h \

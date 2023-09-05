@@ -12,6 +12,7 @@ cd glibc-build
     --libdir=/usr/lib \
     --libexecdir=/usr/lib \
     --enable-werror \
+    --disable-mathvec \
     libc_cv_include_x86_isa_level=no
 
 printf "%s\n" \

@@ -20,6 +20,10 @@
 #
 subdir	:= malloc
 
+vpath %.c     tst
+
+vpath %.sh    tst
+
 include ../Makeconfig
 
 dist-headers := malloc.h

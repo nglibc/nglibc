@@ -20,6 +20,8 @@
 #	Sub-makefile for debug portion of the library.
 #
 subdir	:= debug
+subdir-dirs = tst
+vpath %.c     tst
 
 include ../Makeconfig
 

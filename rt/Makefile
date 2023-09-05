@@ -20,6 +20,8 @@
 #
 subdir	:= rt
 
+vpath %.c     tst
+
 include ../Makeconfig
 
 headers	:= aio.h mqueue.h bits/mqueue.h bits/mqueue2.h

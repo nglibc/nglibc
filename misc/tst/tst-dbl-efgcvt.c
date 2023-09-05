@@ -33,4 +33,4 @@
 # define EXTRA_ECVT_TESTS
 #endif
 
-#include <tst-efgcvt-template.c>
+#include "tst-efgcvt-template.c"

@@ -19,6 +19,10 @@
 #	Sub-makefile for NPTL portion of the library.
 #
 subdir	:= nptl
+vpath %.c     tst
+vpath %.cc    tst
+vpath %.sh    tst
+vpath %.py    tst
 
 include ../Makeconfig
 
@@ -489,7 +493,7 @@ CFLAGS-tst-cleanupx4.c += -fexceptions
 CFLAGS-tst-cleanupx4aux.c += -fexceptions
 CFLAGS-tst-initializers1.c += -W -Wall -Werror
 CFLAGS-tst-initializers1-< = $(CFLAGS-tst-initializers1.c) \
-			     $(patsubst tst-initializers1-%.c,-std=%,$<)
+			     $(patsubst tst/tst-initializers1-%.c,-std=%,$<)
 CFLAGS-tst-initializers1-c89.c += $(CFLAGS-tst-initializers1-<)
 CFLAGS-tst-initializers1-c99.c += $(CFLAGS-tst-initializers1-<)
 CFLAGS-tst-initializers1-c11.c += $(CFLAGS-tst-initializers1-<)

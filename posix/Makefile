@@ -19,6 +19,9 @@
 #	Sub-makefile for POSIX portion of the library.
 #
 subdir	:= posix
+vpath %.c     tst
+vpath %.sh    tst
+vpath %.input tst
 
 include ../Makeconfig
 
@@ -303,13 +306,13 @@ bug-glob1-ARGS = "$(objpfx)"
 tst-execvp3-ARGS = --test-dir=$(objpfx)
 CFLAGS-tst-spawn3.c += -DOBJPFX=\"$(objpfx)\"
 
-$(objpfx)testcases.h: TESTS TESTS2C.sed
-	LC_ALL=C sed -f TESTS2C.sed < $< > $@T
+$(objpfx)testcases.h: tst/TESTS tst/TESTS2C.sed
+	LC_ALL=C sed -f tst/TESTS2C.sed < $< > $@T
 	mv $@T $@
 $(objpfx)runtests.o: $(objpfx)testcases.h
 
-$(objpfx)ptestcases.h: PTESTS PTESTS2C.sed
-	LC_ALL=C sed -f PTESTS2C.sed < $< > $@T
+$(objpfx)ptestcases.h: tst/PTESTS tst/PTESTS2C.sed
+	LC_ALL=C sed -f tst/PTESTS2C.sed < $< > $@T
 	mv $@T $@
 $(objpfx)runptests.o: $(objpfx)ptestcases.h
 

@@ -17,6 +17,8 @@
 
 subdir := gnulib
 
+vpath %.c     tst
+
 include ../Makeconfig
 
 # Maybe this is the right place for a test of gcc's interface.

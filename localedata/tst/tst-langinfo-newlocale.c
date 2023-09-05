@@ -52,4 +52,4 @@ test_locale (char *locale, char *paramstr, int param, char *expected)
   return result;
 }
 
-#include <tst-langinfo.c>
+#include "tst-langinfo.c"

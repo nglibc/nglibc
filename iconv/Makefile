@@ -20,6 +20,10 @@
 #
 subdir	:= iconv
 
+vpath %.c     tst
+
+vpath %.sh    tst
+
 include ../Makeconfig
 
 headers		= iconv.h gconv.h
@@ -77,7 +81,7 @@ endif
 
 # Make a copy of the file because gconv module names are constructed
 # relative to the path of the configuration file.
-$(objpfx)gconv-modules: test-gconv-modules
+$(objpfx)gconv-modules: tst/test-gconv-modules
 	cp $< $@
 
 $(objpfx)tst-iconv-mt: $(shared-thread-library)

@@ -20,6 +20,8 @@
 #
 subdir	:= termios
 
+vpath %.c     tst
+
 include ../Makeconfig
 
 headers	:= termios.h bits/termios.h sys/ttydefaults.h sys/termios.h \

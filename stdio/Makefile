@@ -16,9 +16,13 @@
 # <https://www.gnu.org/licenses/>.
 
 #
-#	Specific makefile for stdbio.
+#	Specific makefile for libio.
 #
-subdir	:= stdio
+subdir	:= libio
+vpath %.c     tst
+vpath %.sh    tst
+vpath %.exp   tst
+vpath %.input tst
 
 include ../Makeconfig
 
@@ -169,7 +173,7 @@ CFLAGS-tst_putwc.c += -DOBJPFX=\"$(objpfx)\"
 CFLAGS-tst-sprintf-ub.c += -Wno-restrict
 CFLAGS-tst-sprintf-chk-ub.c += -Wno-restrict
 
-LDFLAGS-tst-bz24228 = -Wl,--version-script=tst-bz24228.map
+LDFLAGS-tst-bz24228 = -Wl,--version-script=tst/tst-bz24228.map
 
 tst_wprintf2-ARGS = "Some Text"
 
@@ -266,7 +270,7 @@ $(foreach t,default default-static start-stop-gc start-stop-gc-static nostart-st
 
 $(objpfx)test-freopen.out: test-freopen.sh $(objpfx)test-freopen
 	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)'	\
-	$(common-objpfx)stdio/; \
+	$(common-objpfx)libio/; \
 	$(evaluate-test)
 
 $(objpfx)tst-fopenloc-cmp.out: ../iconvdata/testdata/ISO-8859-1..UTF8 \

@@ -17,7 +17,12 @@
 
 # Makefile for elf subdirectory of GNU C Library.
 
-subdir		:= elf
+subdir := elf
+vpath %.c     tst
+vpath %.cc    tst
+vpath %.sh    tst
+vpath %.exp   tst
+vpath %.S     tst
 
 include ../Makeconfig
 
@@ -585,16 +590,16 @@ endif
 endif
 
 tests-special += $(objpfx)tst-relro-ldso.out $(objpfx)tst-relro-libc.out
-$(objpfx)tst-relro-ldso.out: tst-relro-symbols.py $(..)/scripts/glibcelf.py \
+$(objpfx)tst-relro-ldso.out: tst/tst-relro-symbols.py $(..)/scripts/glibcelf.py \
   $(objpfx)ld.so
-	$(PYTHON) tst-relro-symbols.py $(objpfx)ld.so \
+	$(PYTHON) tst/tst-relro-symbols.py $(objpfx)ld.so \
 	  --required=_rtld_global_ro \
 	  > $@ 2>&1; $(evaluate-test)
 # The optional symbols are present in libc only if the architecture has
 # the GLIBC_2.0 symbol set in libc.
-$(objpfx)tst-relro-libc.out: tst-relro-symbols.py $(..)/scripts/glibcelf.py \
+$(objpfx)tst-relro-libc.out: tst/tst-relro-symbols.py $(..)/scripts/glibcelf.py \
   $(common-objpfx)libc.so
-	$(PYTHON) tst-relro-symbols.py $(common-objpfx)libc.so \
+	$(PYTHON) tst/tst-relro-symbols.py $(common-objpfx)libc.so \
 	    --required=_IO_cookie_jumps \
 	    --required=_IO_file_jumps \
 	    --required=_IO_file_jumps_maybe_mmap \
@@ -1198,9 +1203,9 @@ update-abi: update-abi-ld
 update-all-abi: update-all-abi-ld
 
 tests-special += $(objpfx)tst-glibcelf.out
-$(objpfx)tst-glibcelf.out: tst-glibcelf.py elf.h $(..)/scripts/glibcelf.py \
+$(objpfx)tst-glibcelf.out: tst/tst-glibcelf.py elf.h $(..)/scripts/glibcelf.py \
   $(..)/scripts/glibcextract.py
-	touch $(objpfx)/glibcelf_null_file ; PYTHONPATH=$(..)scripts $(PYTHON) tst-glibcelf.py \
+	touch $(objpfx)/glibcelf_null_file ; PYTHONPATH=$(..)scripts $(PYTHON) tst/tst-glibcelf.py \
           --cc="$(CC) $(patsubst -DMODULE_NAME=%,-DMODULE_NAME=testsuite,$(CPPFLAGS))" \
 	  < $(objpfx)/glibcelf_null_file > $@ 2>&1; $(evaluate-test)
 
@@ -2194,12 +2199,12 @@ $(objpfx)tst-unused-dep-cmp.out: $(objpfx)tst-unused-dep.out
 $(objpfx)tst-audit11.out: $(objpfx)tst-auditmod11.so $(objpfx)tst-audit11mod1.so
 tst-audit11-ENV = LD_AUDIT=$(objpfx)tst-auditmod11.so
 $(objpfx)tst-audit11mod1.so: $(objpfx)tst-audit11mod2.so
-LDFLAGS-tst-audit11mod2.so = -Wl,--version-script=tst-audit11mod2.map,-soname,tst-audit11mod2.so
+LDFLAGS-tst-audit11mod2.so = -Wl,--version-script=tst/tst-audit11mod2.map,-soname,tst-audit11mod2.so
 
 $(objpfx)tst-audit12.out: $(objpfx)tst-auditmod12.so $(objpfx)tst-audit12mod1.so $(objpfx)tst-audit12mod3.so
 tst-audit12-ENV = LD_AUDIT=$(objpfx)tst-auditmod12.so
 $(objpfx)tst-audit12mod1.so: $(objpfx)tst-audit12mod2.so
-LDFLAGS-tst-audit12mod2.so = -Wl,--version-script=tst-audit12mod2.map
+LDFLAGS-tst-audit12mod2.so = -Wl,--version-script=tst/tst-audit12mod2.map
 
 $(objpfx)tst-audit13.out: $(objpfx)tst-audit13mod1.so
 LDFLAGS-tst-audit13mod1.so = -Wl,-z,lazy
@@ -2350,13 +2355,13 @@ tst-audit28-ENV = LD_AUDIT=$(objpfx)tst-auditmod28.so
 
 # tst-sonamemove links against an older implementation of the library.
 LDFLAGS-tst-sonamemove-linkmod1.so = \
-  -Wl,--version-script=tst-sonamemove-linkmod1.map \
+  -Wl,--version-script=tst/tst-sonamemove-linkmod1.map \
   -Wl,-soname,tst-sonamemove-runmod1.so
 LDFLAGS-tst-sonamemove-runmod1.so = -Wl,--no-as-needed \
-  -Wl,--version-script=tst-sonamemove-runmod1.map \
+  -Wl,--version-script=tst/tst-sonamemove-runmod1.map \
   -Wl,-soname,tst-sonamemove-runmod1.so
 LDFLAGS-tst-sonamemove-runmod2.so = \
-  -Wl,--version-script=tst-sonamemove-runmod2.map \
+  -Wl,--version-script=tst/tst-sonamemove-runmod2.map \
   -Wl,-soname,tst-sonamemove-runmod2.so
 $(objpfx)tst-sonamemove-runmod1.so: $(objpfx)tst-sonamemove-runmod2.so
 # Link against the link module, but depend on the run-time modules
@@ -2428,7 +2433,7 @@ $(objpfx)tst-linkall-static: \
 endif
 endif
 
-LDFLAGS-nextmod3.so = -Wl,--version-script=nextmod3.map
+LDFLAGS-nextmod3.so = -Wl,--version-script=tst/nextmod3.map
 
 # The application depends on the DSO, and the DSO loads the plugin.
 # The plugin also depends on the DSO. This creates the circular
@@ -2452,11 +2457,11 @@ tst-main1-no-pie = yes
 LDLIBS-tst-main1 = $(libsupport)
 tst-main1mod.so-no-z-defs = yes
 
-LDLIBS-tst-absolute-sym-lib.so = tst-absolute-sym-lib.lds
+LDLIBS-tst-absolute-sym-lib.so = tst/tst-absolute-sym-lib.lds
 $(objpfx)tst-absolute-sym-lib.so: $(LDLIBS-tst-absolute-sym-lib.so)
 $(objpfx)tst-absolute-sym: $(objpfx)tst-absolute-sym-lib.so
 
-LDLIBS-tst-absolute-zero-lib.so = tst-absolute-zero-lib.lds
+LDLIBS-tst-absolute-zero-lib.so = tst/tst-absolute-zero-lib.lds
 $(objpfx)tst-absolute-zero-lib.so: $(LDLIBS-tst-absolute-zero-lib.so)
 $(objpfx)tst-absolute-zero: $(objpfx)tst-absolute-zero-lib.so
 
@@ -2766,10 +2771,10 @@ $(objpfx)tst-dlmopen-gethostbyname.out: $(objpfx)tst-dlmopen-gethostbyname-mod.s
 
 $(objpfx)tst-ro-dynamic: $(objpfx)tst-ro-dynamic-mod.so
 $(objpfx)tst-ro-dynamic-mod.so: $(objpfx)tst-ro-dynamic-mod.os \
-  tst-ro-dynamic-mod.map
+  tst/tst-ro-dynamic-mod.map
 	$(LINK.o) -nostdlib -nostartfiles -shared -o $@ \
 		$(dt-relr-ldflag) \
-		-Wl,--script=tst-ro-dynamic-mod.map \
+		-Wl,--script=tst/tst-ro-dynamic-mod.map \
 		$(objpfx)tst-ro-dynamic-mod.os
 
 $(objpfx)tst-rtld-run-static.out: $(objpfx)/ldconfig
@@ -2879,7 +2884,7 @@ $(objpfx)tst-relr4: $(objpfx)tst-relr-mod4a.so
 $(objpfx)tst-relr-mod4b.so: $(objpfx)tst-relr-mod4b.os
 	$(LINK.o) -nostdlib -nostartfiles -Wl,-z,pack-relative-relocs \
 	$(LDFLAGS-soname-fname) \
-	-Wl,--version-script=tst-relr-mod4b.map \
+	-Wl,--version-script=tst/tst-relr-mod4b.map \
 	-shared -o $@.new $(filter-out $(map-file),$^)
 	$(call after-link,$@.new)
 	mv -f $@.new $@

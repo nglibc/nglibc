@@ -189,7 +189,7 @@ while read file srcfile caller syscall args strong weak; do
   ulong_arg_1=0
   ulong_arg_2=0
   ulong_count=0
-  for U in $(echo $args | sed -e "s/.*:/:/" | grep -ob U)
+  for U in $(echo $args | sed -e "s/.*:/:/" | grep -onh U)
   do
     ulong_count=$(expr $ulong_count + 1)
     ulong_arg=$(echo $U | sed -e "s/:U//")

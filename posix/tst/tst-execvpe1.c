@@ -17,4 +17,4 @@
    <https://www.gnu.org/licenses/>.  */
 
 #define EXECVP(file, argv) execvpe (file, argv, NULL)
-#include <posix/tst-execvp1.c>
+#include "tst-execvp1.c"

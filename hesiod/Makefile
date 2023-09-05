@@ -20,6 +20,8 @@
 #
 subdir	:= hesiod
 
+vpath %.c     tst
+
 include ../Makeconfig
 
 extra-libs := libnss_hesiod

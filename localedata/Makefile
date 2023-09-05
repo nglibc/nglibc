@@ -18,6 +18,9 @@
 # Makefile for installing locale data source files.
 
 subdir := localedata
+vpath %.c     tst
+vpath %.sh    tst
+vpath %.input tst
 
 include ../Makeconfig
 
@@ -358,18 +361,18 @@ $(objpfx)sort-test.out: sort-test.sh $(objpfx)collate-test $(objpfx)xfrm-test \
 	  $(test-input) \
 	  > $@; \
 	$(evaluate-test)
-$(objpfx)tst-fmon.out: tst-fmon.sh $(objpfx)tst-fmon tst-fmon.data \
+$(objpfx)tst-fmon.out: tst-fmon.sh $(objpfx)tst-fmon tst/tst-fmon.data \
 		       $(objpfx)sort-test.out \
 		       $(addprefix $(objpfx),$(CTYPE_FILES))
 	$(SHELL) $< $(common-objpfx) '$(run-program-prefix-before-env)' \
 		 '$(run-program-env)' '$(run-program-prefix-after-env)' \
-		 '$(test-program-prefix)' tst-fmon.data \
+		 '$(test-program-prefix)' tst/tst-fmon.data \
 	  > $@; \
 	$(evaluate-test)
-$(objpfx)tst-numeric.out: tst-numeric.sh $(objpfx)tst-numeric tst-numeric.data \
+$(objpfx)tst-numeric.out: tst-numeric.sh $(objpfx)tst-numeric tst/tst-numeric.data \
 		       $(objpfx)sort-test.out \
 		       $(addprefix $(objpfx),$(CTYPE_FILES))
-	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)' tst-numeric.data \
+	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)' tst/tst-numeric.data \
 	  > $@; \
 	$(evaluate-test)
 $(objpfx)tst-locale.out: tst-locale.sh $(common-objpfx)locale/localedef \

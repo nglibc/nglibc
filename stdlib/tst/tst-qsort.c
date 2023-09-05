@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <tst-stack-align.h>
+#include "tst-stack-align.h"
 
 struct big { char c[4 * 1024]; };
 

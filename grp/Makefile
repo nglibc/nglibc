@@ -20,6 +20,10 @@
 #
 subdir	:= grp
 
+vpath %.c     tst
+
+vpath %.sh    tst
+
 include ../Makeconfig
 
 headers := grp.h

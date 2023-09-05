@@ -20,6 +20,8 @@
 #
 subdir	:= inet
 
+vpath %.c     tst
+
 include ../Makeconfig
 
 headers	:= netinet/ether.h netinet/in.h netinet/in_systm.h \

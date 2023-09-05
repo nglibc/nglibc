@@ -21,6 +21,8 @@
 
 subdir	:= login
 
+vpath %.c     tst
+
 include ../Makeconfig
 
 headers	:= utmp.h bits/utmp.h lastlog.h pty.h

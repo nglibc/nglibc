@@ -19,6 +19,10 @@
 
 subdir = intl
 
+vpath %.c     tst
+
+vpath %.sh    tst
+
 include ../Makeconfig
 
 headers = libintl.h
@@ -72,7 +76,7 @@ ifeq (yes,$(build-shared))
 # spurious test failures.
 codeset_mo = $(objpfx)domaindir/de_DE/LC_MESSAGES/codeset.mo
 
-$(codeset_mo): tstcodeset.po
+$(codeset_mo): tst/tstcodeset.po
 	$(make-target-directory)
 	msgfmt -o $@T $<
 	mv -f $@T $@

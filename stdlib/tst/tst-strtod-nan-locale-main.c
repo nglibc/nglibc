@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <wchar.h>
 
-#include <stdlib/tst-strtod.h>
+#include "tst-strtod.h"
 
 #define STR_(X) #X
 #define STR(X) STR_(X)

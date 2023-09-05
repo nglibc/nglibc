@@ -28,4 +28,4 @@ no_op (int exit_code, void *ignored)
 {
 }
 
-#include <stdlib/test-atexit-race-common.c>
+#include "test-atexit-race-common.c"

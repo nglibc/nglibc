@@ -20,6 +20,8 @@
 #
 subdir	:= argp
 
+vpath %.c     tst
+
 include ../Makeconfig
 
 headers		= argp.h bits/argp-ldbl.h

@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <wchar.h>
 
-#include <stdlib/tst-strtod.h>
+#include "tst-strtod.h"
 #include <support/check.h>
 
 #define CONCAT_(X, Y) X ## Y

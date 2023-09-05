@@ -20,6 +20,8 @@
 #
 subdir	:= setjmp
 
+vpath %.c     tst
+
 include ../Makeconfig
 
 headers	:= setjmp.h bits/setjmp.h bits/setjmp2.h \

@@ -22,4 +22,4 @@
 #define CHAR char
 #define L_(C) C
 
-#include <tst-printf-binary-main.c>
+#include "tst-printf-binary-main.c"

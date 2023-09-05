@@ -1,1 +1,1 @@
-#include <tst-langinfo-newlocale.c>
+#include "tst-langinfo-newlocale.c"

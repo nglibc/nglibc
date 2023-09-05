@@ -1,1 +1,1 @@
-#include <tst-settimeofday.c>
+#include "tst-settimeofday.c"

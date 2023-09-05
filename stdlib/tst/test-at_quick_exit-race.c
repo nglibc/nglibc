@@ -29,4 +29,4 @@ no_op (void)
 {
 }
 
-#include <stdlib/test-atexit-race-common.c>
+#include "test-atexit-race-common.c"

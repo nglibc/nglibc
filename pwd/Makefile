@@ -20,6 +20,8 @@
 #
 subdir	:= pwd
 
+vpath %.c     tst
+
 include ../Makeconfig
 
 headers := pwd.h

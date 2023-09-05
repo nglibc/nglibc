@@ -17,8 +17,8 @@
    <https://www.gnu.org/licenses/>.  */
 
 #include <support/check.h>
-#include <tst-file-align.h>
-#include <tst-stack-align.h>
+#include "tst-file-align.h"
+#include "tst-stack-align.h"
 
 int foo __attribute__ ((aligned (ALIGN))) = 1;
 

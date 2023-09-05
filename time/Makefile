@@ -20,6 +20,8 @@
 #
 subdir	:= time
 
+vpath %.c     tst
+
 include ../Makeconfig
 
 headers := time.h sys/time.h sys/timeb.h bits/time.h			\

@@ -20,6 +20,8 @@
 #
 subdir	:= wctype
 
+vpath %.c     tst
+
 include ../Makeconfig
 
 headers		:= wctype.h bits/wctype-wchar.h

@@ -42,4 +42,4 @@ have_sse2 (void)
     }								\
   while (0)
 
-#include <test-fenv-clear-main.c>
+#include <math/tst/test-fenv-clear-main.c>

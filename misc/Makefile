@@ -21,6 +21,8 @@
 
 subdir	:= misc
 
+vpath %.c     tst
+
 include ../Makeconfig
 
 headers	:= sys/uio.h bits/uio-ext.h bits/uio_lim.h \

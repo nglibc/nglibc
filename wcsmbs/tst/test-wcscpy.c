@@ -1,2 +1,2 @@
 #define WIDE 1
-#include "../string/test-strcpy.c"
+#include <string/tst/test-strcpy.c>

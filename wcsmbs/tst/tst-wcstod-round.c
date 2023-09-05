@@ -28,4 +28,4 @@
 #define STRM "%ls"
 #define snprintf swprintf
 
-#include <stdlib/tst-strtod-round-skeleton.c>
+#include <stdlib/tst/tst-strtod-round-skeleton.c>

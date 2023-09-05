@@ -21,4 +21,4 @@
 #define CHAR    char
 #define STRM    "%s"
 
-#include <tst-strtod-round-skeleton.c>
+#include "tst-strtod-round-skeleton.c"

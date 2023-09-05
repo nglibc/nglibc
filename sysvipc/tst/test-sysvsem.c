@@ -26,7 +26,7 @@
 #include <sys/ipc.h>
 #include <sys/sem.h>
 
-#include <test-sysvipc.h>
+#include "test-sysvipc.h"
 
 #include <support/support.h>
 #include <support/check.h>

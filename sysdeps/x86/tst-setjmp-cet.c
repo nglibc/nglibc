@@ -1,1 +1,1 @@
-#include <setjmp/tst-setjmp.c>
+#include <setjmp/tst/tst-setjmp.c>

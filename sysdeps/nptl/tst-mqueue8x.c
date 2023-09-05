@@ -1,1 +1,1 @@
-#include <rt/tst-mqueue8.c>
+#include <rt/tst/tst-mqueue8.c>

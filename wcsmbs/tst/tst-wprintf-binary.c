@@ -22,4 +22,4 @@
 #define CHAR wchar_t
 #define L_(C) L ## C
 
-#include "../stdio-common/tst-printf-binary-main.c"
+#include <stdio/tst-printf/tst-printf-binary-main.c>

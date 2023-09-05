@@ -20,4 +20,4 @@
 #define STRNCMP wcsncmp
 
 
-#include "../string/stratcliff.c"
+#include <string/tst/stratcliff.c>

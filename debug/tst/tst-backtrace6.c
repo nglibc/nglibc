@@ -21,7 +21,7 @@
 
 #ifdef SA_SIGINFO
 # define SIGACTION_FLAGS SA_SIGINFO
-# include <debug/tst-backtrace5.c>
+# include "tst-backtrace5.c"
 #else
 # define TEST_FUNCTION  0
 # include "../test-skeleton.c"

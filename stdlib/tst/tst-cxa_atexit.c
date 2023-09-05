@@ -21,4 +21,4 @@ extern int __cxa_atexit (void (*func) (void *), void *arg, void *d);
 #define ATEXIT(fn) __cxa_atexit ((void (*) (void *)) fn, (void *) 0, (void *) 0)
 #define EXIT(x) exit (x)
 
-#include <stdlib/tst-atexit-common.c>
+#include "tst-atexit-common.c"

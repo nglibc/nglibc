@@ -16,7 +16,7 @@
    <https://www.gnu.org/licenses/>.  */
 
 #include <stdio.h>
-#include <tst-stack-align.h>
+#include "tst-stack-align.h"
 
 static int res, *resp;
 

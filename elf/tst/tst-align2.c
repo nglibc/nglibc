@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/wait.h>
-#include <tst-stack-align.h>
+#include "tst-stack-align.h"
 #include <unistd.h>
 
 static int res, fds[2], result;

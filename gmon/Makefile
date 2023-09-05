@@ -20,6 +20,10 @@
 #
 subdir	:= gmon
 
+vpath %.c     tst
+
+vpath %.sh    tst
+
 include ../Makeconfig
 
 headers	:= sys/gmon.h sys/gmon_out.h sys/profil.h

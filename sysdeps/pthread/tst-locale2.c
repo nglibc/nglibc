@@ -1,7 +1,7 @@
 /* Test that the thread-local locale works right in the main thread
    when statically linked.  */
 
-#include "../argp/tst-argp1.c"
+#include <argp/tst/tst-argp1.c>
 
 #include <pthread.h>
 

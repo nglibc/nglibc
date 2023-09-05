@@ -1,1 +1,1 @@
-#include <tst-bz11319.c>
+#include "tst-bz11319.c"

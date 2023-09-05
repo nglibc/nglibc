@@ -24,7 +24,7 @@
 #define STRSTR c_strstr
 #define libc_hidden_builtin_def(arg) /* nothing */
 #define __strnlen strnlen
-#include "strstr.c"
+#include <string/strstr.c>
 
 /* Naive implementation to verify results.  */
 static char *

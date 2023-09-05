@@ -20,6 +20,8 @@
 #
 subdir	:= gshadow
 
+vpath %.c     tst
+
 include ../Makeconfig
 
 headers		= gshadow.h

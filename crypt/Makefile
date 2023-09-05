@@ -19,6 +19,8 @@
 #	Sub-makefile for crypt() portion of the library.
 #
 subdir	:= crypt
+vpath %.c     tst
+vpath %.input tst
 
 include ../Makeconfig
 

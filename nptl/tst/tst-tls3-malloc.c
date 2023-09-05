@@ -28,4 +28,4 @@ static long stack_size_in_mb = 10;
 #include <sys/mman.h>
 
 #define INTERPOSE_THREADS 1
-#include "../malloc/tst-interpose-aux.c"
+#include <malloc/tst/tst-interpose-aux.c>

@@ -17,4 +17,4 @@
    <https://www.gnu.org/licenses/>.  */
 
 #define TEST_WCHAR
-#include <stdio/tst-memstream4.c>
+#include "tst-memstream4.c"
