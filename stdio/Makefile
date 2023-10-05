@@ -37,13 +37,12 @@ routines	:=							      \
 	iofopncook iofputs iofread iofsetpos ioftell wfiledoalloc	      \
 	iofwrite iogetdelim iogetline iogets iopadn iopopen ioputs	      \
 	ioseekoff ioseekpos iosetbuffer iosetvbuf ioungetc		      \
-	iovsprintf iovsscanf						      \
-	iofgetpos64 iofopen64 iofsetpos64				      \
-	fputwc fputwc_u getwc getwc_u getwchar getwchar_u iofgetws iofgetws_u \
+	iovsprintf iovsscanf iofgetpos64 iofopen64 iofsetpos64		      \
+	iofputwc fputwc_u getwc getwc_u getwchar getwchar_u iofgetws iofgetws_u\
 	iofputws iofputws_u iogetwline iowpadn ioungetwc putwc putwc_u	      \
-	putwchar putwchar_u putchar putchar_u fwprintf swprintf vwprintf      \
-	wprintf wscanf fwscanf vwscanf vswprintf iovswscanf swscanf wgenops   \
-	wstrops wfileops iofwide fwide wmemstream			      \
+	putwchar putwchar_u putchar putchar_u iofwprintf ioswprintf vwprintf  \
+	iowprintf iowscanf iofwscanf vwscanf vswprintf iovswscanf ioswscanf   \
+	wgenops wstrops wfileops iofwide fwide wmemstream		      \
 									      \
 	clearerr feof ferror fileno fputc freopen fseek getc getchar	      \
 	memstream pclose putc putchar rewind setbuf setlinebuf vasprintf      \
@@ -101,7 +100,7 @@ CPPFLAGS += $(libio-mtsafe)
 # Support for exception handling.
 CFLAGS-fileops.c += -fexceptions
 CFLAGS-fputc.c += -fexceptions
-CFLAGS-fputwc.c += -fexceptions
+CFLAGS-iofputwc.c += -fexceptions
 CFLAGS-freopen64.c += -fexceptions
 CFLAGS-freopen.c += -fexceptions
 CFLAGS-fseek.c += -fexceptions
