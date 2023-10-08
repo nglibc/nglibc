@@ -1,13 +1,13 @@
+#include <stddef.h>
 #include <stdint.h>
-#include <stdio.h>
 #include <math.h>
 #include <float.h>
 #include <limits.h>
 #include <errno.h>
 #include <ctype.h>
 
-#include "shgetc.h"
-#include "floatscan.h"
+#include "scanbuf.h"
+#define fmodl __fmodl
 
 #if LDBL_MANT_DIG == 53 && LDBL_MAX_EXP == 1024
 
@@ -33,7 +33,7 @@
 
 #define MASK (KMAX-1)
 
-static long long scanexp(FILE *f, int pok)
+static long long scanexp(scanbuf *f, int pok)
 {
 	int c;
 	int x;
@@ -60,7 +60,7 @@ static long long scanexp(FILE *f, int pok)
 }
 
 
-static long double decfloat(FILE *f, int c, int bits, int emin, int sign, int pok)
+static long double decfloat(scanbuf *f, int c, int bits, int emin, int sign, int pok)
 {
 	uint32_t x[KMAX];
 	static const uint32_t th[] = { LD_B1B_MAX };
@@ -311,7 +311,7 @@ static long double decfloat(FILE *f, int c, int bits, int emin, int sign, int po
 	return scalbnl(y, e2);
 }
 
-static long double hexfloat(FILE *f, int bits, int emin, int sign, int pok)
+static long double hexfloat(scanbuf *f, int bits, int emin, int sign, int pok)
 {
 	uint32_t x = 0;
 	long double y = 0;
@@ -423,7 +423,7 @@ static long double hexfloat(FILE *f, int bits, int emin, int sign, int pok)
 	return scalbnl(y, e2);
 }
 
-long double __floatscan(FILE *f, int prec, int pok)
+long double __floatscan(scanbuf *f, int prec, int pok)
 {
 	int sign = 1;
 	size_t i;

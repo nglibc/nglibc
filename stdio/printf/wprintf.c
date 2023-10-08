@@ -1,4 +1,5 @@
-#include "stdio_impl.h"
+#include <wchar.h>
+#include <stdio.h>
 #include <errno.h>
 #include <ctype.h>
 #include <limits.h>
@@ -6,8 +7,17 @@
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include <wchar.h>
+#include <wctype.h>
 #include <inttypes.h>
+#include "rdstate.h"
+#include "mb2wc.h"
+
+int    __lockfile  (FILE *);
+int    __unlockfile(FILE *);
+int    __fprintf(FILE *restrict, const char *restrict, ...);
+wint_t __fputwc_unlocked(wchar_t, FILE *);
+
+#define ARGMAX            32 // we can't use glibc NL_ARGMAX
 
 /* Convenient bit representation for modifier flags, which all fall
  * within 31 codepoints of the space character. */
@@ -125,13 +135,13 @@ static void pop_arg(union arg *arg, int type, va_list *ap)
 
 static void out(FILE *f, const wchar_t *s, size_t l)
 {
-	while (l-- && !ferror(f)) fputwc(*s++, f);
+	while (l-- && ~rdstate(f) & F_ERR) __fputwc_unlocked(*s++, f);
 }
 
 static void pad(FILE *f, int n, int fl)
 {
-	if ((fl & LEFT_ADJ) || !n || ferror(f)) return;
-	fprintf(f, "%*s", n, "");
+	if ((fl & LEFT_ADJ) || !n || rdstate(f) & F_ERR) return;
+	__fprintf(f, "%*s", n, "");
 }
 
 static int getint(wchar_t **s) {
@@ -250,7 +260,7 @@ static int wprintf_core(FILE *f, const wchar_t *fmt, va_list *ap, union arg *nl_
 		if (!f) continue;
 
 		/* Do not process any new directives once in error state. */
-		if (ferror(f)) return -1;
+		if (rdstate(f) & F_ERR) return -1;
 
 		t = s[-1];
 		if (ps && (t&15)==3) t&=~32;
@@ -289,9 +299,9 @@ static int wprintf_core(FILE *f, const wchar_t *fmt, va_list *ap, union arg *nl_
 		case 'm':
 			arg.p = strerror(errno);
 		case 's':
-			if (!arg.p) arg.p = "(null)";
+			if (!arg.p) arg.p = (char *)"(null)";
 			bs = arg.p;
-			for (i=l=0; l<(p<0?INT_MAX:p) && (i=mbtowc(&wc, bs, MB_LEN_MAX))>0; bs+=i, l++);
+			for (i=l=0; l<(p<0?INT_MAX:p) && (i=mbtowc(&wc, bs))>0; bs+=i, l++);
 			if (i<0) return -1;
 			if (p<0 && *bs) goto overflow;
 			p=l;
@@ -299,7 +309,7 @@ static int wprintf_core(FILE *f, const wchar_t *fmt, va_list *ap, union arg *nl_
 			pad(f, w-p, fl);
 			bs = arg.p;
 			while (l--) {
-				i=mbtowc(&wc, bs, MB_LEN_MAX);
+				i=mbtowc(&wc, bs);
 				bs+=i;
 				out(f, &wc, 1);
 			}
@@ -319,10 +329,10 @@ static int wprintf_core(FILE *f, const wchar_t *fmt, va_list *ap, union arg *nl_
 
 		switch (t|32) {
 		case 'a': case 'e': case 'f': case 'g':
-			l = fprintf(f, charfmt, w, p, arg.f);
+			l = __fprintf(f, charfmt, w, p, arg.f);
 			break;
 		case 'd': case 'i': case 'o': case 'u': case 'x': case 'p':
-			l = fprintf(f, charfmt, w, p, arg.i);
+			l = __fprintf(f, charfmt, w, p, arg.i);
 			break;
 		}
 	}
@@ -330,10 +340,10 @@ static int wprintf_core(FILE *f, const wchar_t *fmt, va_list *ap, union arg *nl_
 	if (f) return cnt;
 	if (!l10n) return 0;
 
-	for (i=1; i<=NL_ARGMAX && nl_type[i]; i++)
+	for (i=1; i<=ARGMAX && nl_type[i]; i++)
 		pop_arg(nl_arg+i, nl_type[i], ap);
-	for (; i<=NL_ARGMAX && !nl_type[i]; i++);
-	if (i<=NL_ARGMAX) return -1;
+	for (; i<=ARGMAX && !nl_type[i]; i++);
+	if (i<=ARGMAX) return -1;
 	return 1;
 
 inval:
@@ -344,13 +354,11 @@ overflow:
 	return -1;
 }
 
-int vfwprintf(FILE *restrict f, const wchar_t *restrict fmt, va_list ap)
+int __vfwprintf(FILE *restrict f, const wchar_t *restrict fmt, va_list ap)
 {
 	va_list ap2;
-	int nl_type[NL_ARGMAX+1] = {0};
-	union arg nl_arg[NL_ARGMAX+1];
-	int olderr;
-	int ret;
+	int nl_type[ARGMAX+1] = {0}, unlock, olderr, ret;
+	union arg nl_arg[ARGMAX+1];
 
 	/* the copy allows passing va_list* even if va_list is an array */
 	va_copy(ap2, ap);
@@ -359,14 +367,37 @@ int vfwprintf(FILE *restrict f, const wchar_t *restrict fmt, va_list ap)
 		return -1;
 	}
 
-	FLOCK(f);
-	fwide(f, 1);
-	olderr = f->flags & F_ERR;
-	f->flags &= ~F_ERR;
+	unlock = rdstate(f) & F_NEEDLOCK ? __lockfile(f) : 0;
+	olderr = rdstate(f) & F_ERR;
+	rdstate(f) &= ~F_ERR;
+	if (~rdstate(f) & F_WIDE) fwide(f, 1);
 	ret = wprintf_core(f, fmt, &ap2, nl_arg, nl_type);
-	if (ferror(f)) ret = -1;
-	f->flags |= olderr;
-	FUNLOCK(f);
+	if (rdstate(f) & F_ERR) ret = -1;
+	rdstate(f) |= olderr;
+	if (unlock) __unlockfile(f);
 	va_end(ap2);
 	return ret;
 }
+
+int __vwprintf(const wchar_t *restrict fmt, va_list ap)
+{
+	return __vfwprintf(stdout, fmt, ap);
+}
+
+int __wprintf(const wchar_t *restrict fmt, ...)
+{
+	int ret;
+	va_list ap;
+	va_start(ap, fmt);
+	ret = __vfwprintf(stdout, fmt, ap);
+	va_end(ap);
+	return ret;
+}
+
+
+#ifdef _LIBC
+#include "libioP.h"
+ldbl_weak_alias   (__vfwprintf, vfwprintf)
+ldbl_strong_alias (__vwprintf,  vwprintf)
+ldbl_strong_alias (__wprintf,   wprintf)
+#endif

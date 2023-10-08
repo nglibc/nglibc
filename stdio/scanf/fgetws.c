@@ -1,28 +1,35 @@
-#include "stdio_impl.h"
 #include <wchar.h>
+#include <stdio.h>
+#include "scanbuf.h"
 
-wint_t __fgetwc_unlocked(FILE *);
+int     __lockfile  (FILE *);
+int     __unlockfile(FILE *);
+wint_t  __fgetwc_unlocked(FILE *);
 
-wchar_t *fgetws(wchar_t *restrict s, int n, FILE *restrict f)
+size_t _IO_getwline(FILE *f, wchar_t *s, size_t n, wint_t delim, int extract_delim)
 {
-	wchar_t *p = s;
-
-	if (!n--) return s;
-
-	FLOCK(f);
-
-	for (; n; n--) {
-		wint_t c = __fgetwc_unlocked(f);
-		if (c == WEOF) break;
-		*p++ = c;
-		if (c == '\n') break;
+	size_t i = 0;
+	wint_t c;
+	int unlock = rdstate(f) & F_NEEDLOCK ? __lockfile(f) : 0;
+	while (i < n && (c = __fgetwc_unlocked(f)) != WEOF) {
+		if (c != delim) s[i++] = c; else {
+			if (extract_delim > 0) s[i++] = c;
+			else if (extract_delim < 0) ungetwc(c, f);
+			break;
+		}
 	}
-	*p = 0;
-	if (ferror(f)) p = s;
-
-	FUNLOCK(f);
-
-	return (p == s) ? NULL : s;
+	if (unlock) __unlockfile(f);
+	return i;
 }
 
-weak_alias(fgetws, fgetws_unlocked);
+wchar_t *__fgetws(wchar_t *restrict s, int n, FILE *restrict f)
+{
+	size_t i;
+	if (n > 0) s[i = _IO_getwline(f, s, n-1, L'\n', 1)] = 0; else return s;
+	return rdstate(f) & F_ERR || !i ? NULL : s;
+}
+
+
+#ifdef _LIBC
+weak_alias (__fgetws, fgetws)
+#endif

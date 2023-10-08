@@ -104,6 +104,9 @@
 #define _IO_CHECK_WIDE(THIS) \
   (_IO_CAST_FIELD_ACCESS ((THIS), struct _IO_FILE, _wide_data) != NULL)
 
+
+#define IO_validate_vtable(vt) __validate_vtable(vt, __func__)
+
 #if _IO_JUMPS_OFFSET
 # define _IO_JUMPS_FUNC(THIS) \
   (IO_validate_vtable                                                   \
@@ -929,20 +932,23 @@ IO_set_accept_foreign_vtables (void (*flag) (void))
    terminate the process.  */
 void _IO_vtable_check (void) attribute_hidden;
 
+
 /* Perform vtable pointer validation.  If validation fails, terminate
    the process.  */
 static inline const struct _IO_jump_t *
-IO_validate_vtable (const struct _IO_jump_t *vtable)
+__validate_vtable (const struct _IO_jump_t *vtable, const char *func)
 {
   /* Fast path: The vtable pointer is within the __libc_IO_vtables
      section.  */
   uintptr_t section_length = __stop___libc_IO_vtables - __start___libc_IO_vtables;
   uintptr_t ptr = (uintptr_t) vtable;
   uintptr_t offset = ptr - (uintptr_t) __start___libc_IO_vtables;
-  if (__glibc_unlikely (offset >= section_length))
+  if (__glibc_unlikely (offset >= section_length)) {
     /* The vtable pointer is not in the expected section.  Use the
        slow path, which will terminate the process if necessary.  */
+    fprintf(stderr, "*** VTABLE CHECK *** func=%s\n", func);
     _IO_vtable_check ();
+  }
   return vtable;
 }
 

@@ -1,16 +1,25 @@
+#ifdef _LIBC
+#include <features.h>
+#undef  __GLIBC_USE_DEPRECATED_SCANF
+#define __GLIBC_USE_DEPRECATED_SCANF 1
+#endif
+#include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <ctype.h>
-#include <wchar.h>
 #include <wctype.h>
 #include <limits.h>
 #include <string.h>
 #include <stdint.h>
+#include "scanbuf.h"
 
-#include "stdio_impl.h"
-#include "shgetc.h"
-#include "intscan.h"
-#include "floatscan.h"
+#define mbsinit(st) ((st) == NULL || !*(unsigned *)(st))
+#define mbrtowc     __mbr2wc
+
+size_t  __mbr2wc    (wchar_t *, const char *, size_t n, unsigned *);
+int     __lockfile  (FILE *);
+int     __unlockfile(FILE *);
+int     __toread    (FILE *);
 
 #define SIZE_hh -2
 #define SIZE_h  -1
@@ -53,7 +62,7 @@ static void *arg_n(va_list ap, unsigned int n)
 	return p;
 }
 
-int vfscanf(FILE *restrict f, const char *restrict fmt, va_list ap)
+int __vfscanf(FILE *restrict f, const char *restrict fmt, va_list ap)
 {
 	int width;
 	int size;
@@ -63,7 +72,7 @@ int vfscanf(FILE *restrict f, const char *restrict fmt, va_list ap)
 	int c, t;
 	char *s;
 	wchar_t *wcs;
-	mbstate_t st;
+	unsigned st;
 	void *dest=NULL;
 	int invert;
 	int matches=0;
@@ -73,14 +82,12 @@ int vfscanf(FILE *restrict f, const char *restrict fmt, va_list ap)
 	unsigned char scanset[257];
 	size_t i, k;
 	wchar_t wc;
-
-	FLOCK(f);
-
-	if (!f->rpos) __toread(f);
-	if (!f->rpos) goto input_fail;
+	scanbuf sb = { rdbuf(f) };
+	int unlock = rdstate(f) & F_NEEDLOCK ? __lockfile(f) : 0;
+	if (!rdbuf(f)->gptr && __toread(f)) goto input_fail;
 
 	for (p=(const unsigned char *)fmt; *p; p++) {
-
+		scanbuf *const f = &sb;
 		alloc = 0;
 
 		if (isspace(*p)) {
@@ -231,7 +238,7 @@ int vfscanf(FILE *restrict f, const char *restrict fmt, va_list ap)
 				} else {
 					wcs = dest;
 				}
-				st = (mbstate_t){0};
+				st = (unsigned){0};
 				while (scanset[(c=shgetc(f))+1]) {
 					switch (mbrtowc(&wc, &(char){c}, 1, &st)) {
 					case -1:
@@ -332,8 +339,37 @@ match_fail:
 			free(wcs);
 		}
 	}
-	FUNLOCK(f);
+	if (unlock) __unlockfile(f);
 	return matches;
 }
 
-weak_alias(vfscanf,__isoc99_vfscanf);
+int __vscanf(const char *restrict fmt, va_list ap)
+{
+	return __vfscanf(stdin, fmt, ap);
+}
+
+int __scanf(const char *restrict fmt, ...)
+{
+	int ret;
+	va_list ap;
+	va_start(ap, fmt);
+	ret = __vfscanf(stdin, fmt, ap);
+	va_end(ap);
+	return ret;
+}
+
+
+#ifdef _LIBC
+#include "libioP.h"
+libc_hidden_def   (__isoc99_vfscanf)
+ldbl_strong_alias (__vfscanf, __isoc99_vfscanf)
+ldbl_strong_alias (__vscanf,  __isoc99_vscanf)
+ldbl_strong_alias (__scanf,   __isoc99_scanf)
+//ldbl_compat_symbol (libc, __IO_vfscanf, _IO_vfscanf, GLIBC_2_0)
+libc_hidden_def   (__vfscanf)
+ldbl_weak_alias   (__vscanf,  _IO_vscanf)
+ldbl_weak_alias   (__vfscanf, vfscanf)
+ldbl_weak_alias   (__vscanf,  vscanf)
+ldbl_strong_alias (__scanf,   scanf)
+#endif
+

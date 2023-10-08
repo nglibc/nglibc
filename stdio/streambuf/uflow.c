@@ -1,11 +1,16 @@
-#include "stdio_impl.h"
+#define _GNU_SOURCE 1
+#include <stdio.h>
+#include "streambuf.h"
 
 /* This function assumes it will never be called if there is already
  * data buffered for reading. */
 
-int __uflow(FILE *f)
+int __uflowx(FILE *f)
 {
-	unsigned char c;
-	if (!__toread(f) && f->read(f, &c, 1)==1) return c;
+	int old = (rdstate(f) >> 16 == 0xFBAD);
+	char c;
+	if (old) return __uflow(f);
+	if (!__toread(f) && rdbuf(f)->virt->read(f, &c, 1)==1) return c;
 	return EOF;
 }
+

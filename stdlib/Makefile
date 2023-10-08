@@ -120,11 +120,6 @@ routines := \
   setenv \
   srand48 \
   srand48_r \
-  strfmon \
-  strfmon_l \
-  strfromd \
-  strfromf \
-  strfroml \
   strtod \
   strtod_l \
   strtod_nan \

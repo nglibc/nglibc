@@ -1,9 +1,9 @@
-#define bittab __fsmu8
-
+#include <stdlib.h>
+#include <wchar.h>
+#include <errno.h>
 #include <stdint.h>
-#include <features.h>
 
-extern hidden const uint32_t bittab[];
+#define bittab __fsmu8
 
 /* Upper 6 state bits are a negative integer offset to bound-check next byte */
 /*    equivalent to: ( (b-0x80) | (b+offset) ) & ~0x3f      */
@@ -15,15 +15,7 @@ extern hidden const uint32_t bittab[];
 
 #define SA 0xc2u
 #define SB 0xf4u
-
-/* Arbitrary encoding for representing code units instead of characters. */
-#define CODEUNIT(c) (0xdfff & (signed char)(c))
-#define IS_CODEUNIT(c) ((unsigned)(c)-0xdf80 < 0x80)
-
-/* Get inline definition of MB_CUR_MAX. */
-#include "locale_impl.h"
-#include "internal.h"
-
+	
 #define C(x) ( x<2 ? -1 : ( R(0x80,0xc0) | x ) )
 #define D(x) C((x+16))
 #define E(x) ( ( x==0 ? R(0xa0,0xc0) : \
@@ -48,12 +40,8 @@ const uint32_t bittab[] = {
 	E(0x8),E(0x9),E(0xa),E(0xb),E(0xc),E(0xd),E(0xe),E(0xf),
 	F(0x0),F(0x1),F(0x2),F(0x3),F(0x4)
 };
-#include <stdlib.h>
-#include <wchar.h>
-#include <errno.h>
-#include "internal.h"
 
-size_t mbrtowc(wchar_t *restrict wc, const char *restrict src, size_t n, mbstate_t *restrict st)
+size_t __mbr2wc(wchar_t *restrict wc, const char *restrict src, size_t n, unsigned *restrict st)
 {
 	static unsigned internal_state;
 	unsigned c;
@@ -72,7 +60,6 @@ size_t mbrtowc(wchar_t *restrict wc, const char *restrict src, size_t n, mbstate
 	if (!n) return -2;
 	if (!c) {
 		if (*s < 0x80) return !!(*wc = *s);
-		if (MB_CUR_MAX==1) return (*wc = CODEUNIT(*s)), 1;
 		if (*s-SA > SB-SA) goto ilseq;
 		c = bittab[*s++-SA]; n--;
 	}

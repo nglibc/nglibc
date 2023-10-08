@@ -31,31 +31,18 @@ headers	:= stdio_ext.h printf.h bits/printf-ldbl.h bits/stdio_lim.h
 routines := \
   _itoa \
   _itowa \
-  asprintf \
   ctermid \
   cuserid \
-  dprintf \
   flockfile \
-  fprintf \
-  fscanf \
   ftrylockfile \
   funlockfile \
   gentempfd \
   getline \
   getw \
   grouping_iterator \
-  iovfscanf \
-  isoc99_fscanf \
-  isoc99_scanf \
-  isoc99_sscanf \
-  isoc99_vfscanf \
-  isoc99_vscanf \
-  isoc99_vsscanf \
   itoa-digits \
   itoa-udigits \
   itowa-digits \
-  perror \
-  printf \
   printf-prs \
   printf_buffer_as_file \
   printf_buffer_done \
@@ -79,10 +66,6 @@ routines := \
   rename \
   renameat \
   renameat2 \
-  scanf \
-  snprintf \
-  sprintf \
-  sscanf \
   tempnam \
   tempname \
   tmpfile \
@@ -90,15 +73,6 @@ routines := \
   tmpnam \
   tmpnam_r \
   translated_number_width \
-  vfprintf \
-  vfprintf-internal \
-  vfscanf \
-  vfscanf-internal \
-  vfwprintf \
-  vfwprintf-internal \
-  vfwscanf \
-  vfwscanf-internal \
-  vprintf \
   wprintf_buffer_as_file \
   wprintf_buffer_done \
   wprintf_buffer_flush \

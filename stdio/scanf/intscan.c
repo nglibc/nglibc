@@ -1,7 +1,7 @@
 #include <limits.h>
 #include <errno.h>
 #include <ctype.h>
-#include "shgetc.h"
+#include "scanbuf.h"
 
 /* Lookup table for digit values. -1==255>=36 -> invalid */
 static const unsigned char table[] = { -1,
@@ -23,7 +23,7 @@ static const unsigned char table[] = { -1,
 -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 };
 
-unsigned long long __intscan(FILE *f, unsigned base, int pok, unsigned long long lim)
+unsigned long long __intscan(scanbuf *f, unsigned base, int pok, unsigned long long lim)
 {
 	const unsigned char *val = table+1;
 	int c, neg=0;

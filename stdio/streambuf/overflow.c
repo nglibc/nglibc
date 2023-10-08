@@ -1,10 +1,15 @@
-#include "stdio_impl.h"
+#define _GNU_SOURCE 1
+#include <stdio.h>
+#include "streambuf.h"
 
-int __overflow(FILE *f, int _c)
+int __overflowx(FILE *f, int ch)
 {
-	unsigned char c = _c;
-	if (!f->wend && __towrite(f)) return EOF;
-	if (f->wpos != f->wend && c != f->lbf) return *f->wpos++ = c;
-	if (f->write(f, &c, 1)!=1) return EOF;
+	unsigned char c = ch;
+	streambuf *sb = rdbuf(f);
+	int old = (rdstate(f) >> 16 == 0xFBAD);
+	if (old) return __overflow(f, ch);
+	if (sb->epptr == 0 && __towrite(f)) return EOF;
+	if (sb->epptr != sb->pptr && c != '\n' && rdstate(f) & F_LBF) return *sb->pptr++ = c;
+	if (sb->virt->write(f, (char *)&c, 1)!=1) return EOF;
 	return c;
 }

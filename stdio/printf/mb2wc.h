@@ -1,47 +1,35 @@
 #include <stdlib.h>
 #include <wchar.h>
 #include <errno.h>
-#include "internal.h"
 
-int mbtowc(wchar_t *restrict wc, const char *restrict src, size_t n)
+#define mbtowc   mb2wc
+#define btowc(x) (x)  
+
+/* Requires src be null terminated string or otherwise at least 4 bytes long */
+static int mb2wc(wchar_t *restrict wc, const char *restrict src)
 {
-	unsigned c;
 	const unsigned char *s = (const void *)src;
+	const unsigned UTF_2B  = 0x800, surrog = 0xD800, UTF_3B = 0x10000;
+	const unsigned SA = 0xC2, SB = 0xF4, TA = 0x80, TB = 0xC0;
+	unsigned c, b;
 	wchar_t dummy;
 
-	if (!s) return 0;
-	if (!n) goto ilseq;
+	if (!s) return 0; else c = *s++;
 	if (!wc) wc = &dummy;
+	if (c < TA) return !!(*wc = c); else c -= SA;
+	if (c >= SB-SA) goto invalid_utf8;
+	c = c << 6 | (b = *s++ - TA);
+	if (b >= TB-TA) goto invalid_utf8;
+	if (c < UTF_2B) return (void)(*wc = c), 2;
+	c =(c - UTF_2B) << 6;
+	if (c < UTF_2B || c-surrog < 0x800 || c-UTF_3B < 0x400 || c >= 0x14400) goto invalid_utf8;
+	c = c | (b = *s++ - TA); 
+	if (b >= TB-TA) goto invalid_utf8;
+	if (c < UTF_3B) return (void)(*wc = c), 3;
+	c =(c - UTF_3B) << 6 | (b = *s++ - TA);
+	if (b <  TB-TA) return (void)(*wc = c), 4;
 
-	if (*s < 0x80) return !!(*wc = *s);
-	if (MB_CUR_MAX==1) return (*wc = CODEUNIT(*s)), 1;
-	if (*s-SA > SB-SA) goto ilseq;
-	c = bittab[*s++-SA];
-
-	/* Avoid excessive checks against n: If shifting the state n-1
-	 * times does not clear the high bit, then the value of n is
-	 * insufficient to read a character */
-	if (n<4 && ((c<<(6*n-6)) & (1U<<31))) goto ilseq;
-
-	if (OOB(c,*s)) goto ilseq;
-	c = c<<6 | *s++-0x80;
-	if (!(c&(1U<<31))) {
-		*wc = c;
-		return 2;
-	}
-
-	if (*s-0x80u >= 0x40) goto ilseq;
-	c = c<<6 | *s++-0x80;
-	if (!(c&(1U<<31))) {
-		*wc = c;
-		return 3;
-	}
-
-	if (*s-0x80u >= 0x40) goto ilseq;
-	*wc = c<<6 | *s++-0x80;
-	return 4;
-
-ilseq:
+invalid_utf8:
 	errno = EILSEQ;
 	return -1;
 }

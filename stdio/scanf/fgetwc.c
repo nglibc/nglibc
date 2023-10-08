@@ -1,32 +1,43 @@
-#include "stdio_impl.h"
-#include "locale_impl.h"
+#define _GNU_SOURCE 1
 #include <wchar.h>
+#include <stdio.h>
 #include <errno.h>
+#include "scanbuf.h"
 
-static wint_t __fgetwc_unlocked_internal(FILE *f)
+#undef  getc_unlocked
+#define getc_unlocked(f)  (rdbuf(f)->gptr != rdbuf(f)->egptr ? (unsigned char)*rdbuf(f)->gptr++ : __uflowx(f))
+#define mbrtowc           __mbr2wc
+
+size_t  __mbr2wc    (wchar_t *, const char *, size_t, unsigned *);
+int     __lockfile  (FILE *);
+int     __unlockfile(FILE *);
+int     __uflowx    (FILE *f);
+
+wint_t __fgetwc_unlocked(FILE *f)
 {
 	wchar_t wc;
-	int c;
 	size_t l;
+	int c;
+	unsigned char b;
+	unsigned st0 = 0, st = 0;
+	int first = 1;
+	if (~rdstate(f) & F_WIDE) fwide(f, 1);
 
 	/* Convert character from buffer if possible */
-	if (f->rpos != f->rend) {
-		l = mbtowc(&wc, (void *)f->rpos, f->rend - f->rpos);
+	if (rdbuf(f)->gptr != rdbuf(f)->egptr) {
+		l = mbrtowc(&wc, (void *)rdbuf(f)->gptr, rdbuf(f)->egptr - rdbuf(f)->gptr, &st0);
 		if (l+1 >= 1) {
-			f->rpos += l + !l; /* l==0 means 1 byte, null */
+			rdbuf(f)->gptr += l + !l; // l==0 means 1 byte, null
 			return wc;
 		}
 	}
 
 	/* Convert character byte-by-byte */
-	mbstate_t st = { 0 };
-	unsigned char b;
-	int first = 1;
 	do {
 		b = c = getc_unlocked(f);
 		if (c < 0) {
 			if (!first) {
-				f->flags |= F_ERR;
+				rdstate(f) |= F_ERR;
 				errno = EILSEQ;
 			}
 			return WEOF;
@@ -34,7 +45,7 @@ static wint_t __fgetwc_unlocked_internal(FILE *f)
 		l = mbrtowc(&wc, (void *)&b, 1, &st);
 		if (l == -1) {
 			if (!first) {
-				f->flags |= F_ERR;
+				rdstate(f) |= F_ERR;
 				ungetc(b, f);
 			}
 			return WEOF;
@@ -45,24 +56,32 @@ static wint_t __fgetwc_unlocked_internal(FILE *f)
 	return wc;
 }
 
-wint_t __fgetwc_unlocked(FILE *f)
-{
-	locale_t *ploc = &CURRENT_LOCALE, loc = *ploc;
-	if (f->mode <= 0) fwide(f, 1);
-	*ploc = f->locale;
-	wchar_t wc = __fgetwc_unlocked_internal(f);
-	*ploc = loc;
-	return wc;
-}
-
-wint_t fgetwc(FILE *f)
+wint_t _IO_getwc(FILE *f)
 {
 	wint_t c;
-	FLOCK(f);
+	int unlock = rdstate(f) & F_NEEDLOCK ? __lockfile(f) : 0;
 	c = __fgetwc_unlocked(f);
-	FUNLOCK(f);
+	if (unlock) __unlockfile(f);
 	return c;
 }
 
-weak_alias(__fgetwc_unlocked, fgetwc_unlocked);
-weak_alias(__fgetwc_unlocked, getwc_unlocked);
+wint_t getwchar_unlocked(void)
+{
+	return __fgetwc_unlocked(stdout);
+}
+
+wint_t getwchar(void)
+{
+	return fgetwc(stdout);
+}
+
+
+#ifdef _LIBC
+#undef getwc_unlocked
+weak_alias (__fgetwc_unlocked, getwc_unlocked)
+weak_alias (__fgetwc_unlocked, fgetwc_unlocked)
+
+#undef getwc
+weak_alias (_IO_getwc, getwc)
+weak_alias (_IO_getwc, fgetwc)
+#endif

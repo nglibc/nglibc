@@ -1,23 +1,29 @@
-#include "stdio_impl.h"
+#include <stdio.h>
+#include "streambuf.h"
+
+void __fsetwrite(FILE *f)
+{
+	rdbuf(f)->pptr = rdbuf(f)->pbase = rdbuf(f)->buf;
+	rdbuf(f)->epptr = rdbuf(f)->bufend;
+}
 
 int __towrite(FILE *f)
 {
-	f->mode |= f->mode-1;
-	if (f->flags & F_NOWR) {
-		f->flags |= F_ERR;
+	if (rdstate(f) & F_CURWR || rdstate(f) >> 16 == 0xFBAD) return 0;
+	rdstate(f) |= F_ORIENTED | F_CURWR;
+	if (rdstate(f) & F_NOWR) {
+		rdstate(f) |= F_ERR;
 		return EOF;
 	}
 	/* Clear read buffer (easier than summoning nasal demons) */
-	f->rpos = f->rend = 0;
+	rdbuf(f)->gptr = rdbuf(f)->egptr = 0;
 
 	/* Activate write through the buffer. */
-	f->wpos = f->wbase = f->buf;
-	f->wend = f->buf + f->buf_size;
-
-	return 0;
+	return __fsetwrite(f), 0;
 }
 
-hidden void __towrite_needs_stdio_exit()
+//TODO: hidden
+void __towrite_needs_stdio_exit(void)
 {
-	__stdio_exit_needed();
+	//TODO: __stdio_exit_needed();
 }

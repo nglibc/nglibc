@@ -1,38 +1,33 @@
-#include "stdio_impl.h"
+#define _GNU_SOURCE 1
+#include <stdio.h>
 #include <string.h>
+#include "streambuf.h"
 
-size_t __fwritex(const unsigned char *restrict s, size_t l, FILE *restrict f)
+size_t __fwritex(const char *restrict s, size_t l, FILE *restrict f)
 {
-	size_t i=0;
+	size_t i = 0, all = l;
+	int old = (rdstate(f) >> 16 == 0xFBAD);
+	if (old) return fwrite_unlocked(s, 1, l, f);
+	if (__towrite(f)) return 0;
 
-	if (!f->wend && __towrite(f)) return 0;
+	if (l > rdbuf(f)->epptr - rdbuf(f)->pptr) {
+		if (rdbuf(f)->virt->write) return rdbuf(f)->virt->write(f, s, l);
+		l = rdbuf(f)->epptr - rdbuf(f)->pptr;
+	}
 
-	if (l > f->wend - f->wpos) return f->write(f, s, l);
-
-	if (f->lbf >= 0) {
+	if (rdstate(f) & F_LBF && rdbuf(f)->virt->write) {
 		/* Match /^(.*\n|)/ */
 		for (i=l; i && s[i-1] != '\n'; i--);
 		if (i) {
-			size_t n = f->write(f, s, i);
+			size_t n = rdbuf(f)->virt->write(f, s, i);
 			if (n < i) return n;
 			s += i;
 			l -= i;
 		}
 	}
 
-	memcpy(f->wpos, s, l);
-	f->wpos += l;
-	return l+i;
+	memcpy(rdbuf(f)->pptr, s, l);
+	rdbuf(f)->pptr += l;
+	return all; // successful write reported even if output to mem buf truncated
 }
 
-size_t fwrite(const void *restrict src, size_t size, size_t nmemb, FILE *restrict f)
-{
-	size_t k, l = size*nmemb;
-	if (!size) nmemb = 0;
-	FLOCK(f);
-	k = __fwritex(src, l, f);
-	FUNLOCK(f);
-	return k==l ? nmemb : k/size;
-}
-
-weak_alias(fwrite, fwrite_unlocked);

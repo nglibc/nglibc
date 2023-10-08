@@ -126,7 +126,7 @@ tests-exclude-mcheck = tst-mallocstate \
 tests-mcheck = $(filter-out $(tests-exclude-mcheck) $(tests-static), $(tests))
 endif
 
-routines = malloc mcheck mtrace obstack reallocarray \
+routines = malloc mcheck mtrace obstack obstack_printf reallocarray \
   scratch_buffer_grow scratch_buffer_grow_preserve \
   scratch_buffer_set_array_size \
   dynarray_at_failure \

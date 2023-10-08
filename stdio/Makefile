@@ -18,8 +18,8 @@
 #
 #	Specific makefile for libio.
 #
-subdir	:= libio
-vpath %.c     tst
+subdir	:= stdio
+vpath %.c     streambuf filebuf printf scanf tst
 vpath %.sh    tst
 vpath %.exp   tst
 vpath %.input tst
@@ -37,22 +37,20 @@ routines	:=							      \
 	iofopncook iofputs iofread iofsetpos ioftell wfiledoalloc	      \
 	iofwrite iogetdelim iogetline iogets iopadn iopopen ioputs	      \
 	ioseekoff ioseekpos iosetbuffer iosetvbuf ioungetc		      \
-	iovsprintf iovsscanf iofgetpos64 iofopen64 iofsetpos64		      \
-	iofputwc fputwc_u getwc getwc_u getwchar getwchar_u iofgetws iofgetws_u\
-	iofputws iofputws_u iogetwline iowpadn ioungetwc putwc putwc_u	      \
-	putwchar putwchar_u putchar putchar_u iofwprintf ioswprintf vwprintf  \
-	iowprintf iowscanf iofwscanf vwscanf vswprintf iovswscanf ioswscanf   \
-	wgenops wstrops wfileops iofwide fwide wmemstream		      \
+	iofgetpos64 iofopen64 iofsetpos64 putchar putchar_u 		      \
+	iowpadn wgenops wstrops wfileops iofwide wmemstream		      \
 									      \
 	clearerr feof ferror fileno fputc freopen fseek getc getchar	      \
-	memstream pclose putc putchar rewind setbuf setlinebuf vasprintf      \
-	iovdprintf vscanf vsnprintf obprintf fcloseall fseeko ftello	      \
-	freopen64 fseeko64 ftello64					      \
+	memstream pclose putc putchar rewind setbuf setlinebuf      	      \
+	fcloseall fseeko ftello	freopen64 fseeko64 ftello64		      \
 									      \
 	__fbufsize __freading __fwriting __freadable __fwritable __flbf	      \
-	__fpurge __fpending __fsetlocking				      \
-									      \
-	libc_fatal fmemopen oldfmemopen vtables
+	__fpurge __fsetlocking sbtoread sbtowrite sbmisc lockfile sbfwide     \
+	uflow shgetc intscan floatscan mbfuncs fmodl scanf fscanf sscanf      \
+	fgetwc ungetwc fgetws wscanf fwscanf swscanf			      \
+	overflow fwrite perror printf fprintf snprintf sprintf asprintf	      \
+	fputwc fputws wprintf fwprintf swprintf dprintf stdio_write	      \
+	strfromd strfroml debug_compat libc_fatal fmemopen oldfmemopen vtables
 
 tests = tst_swprintf tst_wprintf tst_swscanf tst_wscanf tst_getwc tst_putwc   \
 	tst_wprintf2 tst-widetext test-fmemopen tst-ext tst-ext2 \
@@ -100,7 +98,7 @@ CPPFLAGS += $(libio-mtsafe)
 # Support for exception handling.
 CFLAGS-fileops.c += -fexceptions
 CFLAGS-fputc.c += -fexceptions
-CFLAGS-iofputwc.c += -fexceptions
+CFLAGS-fputwc.c += -fexceptions
 CFLAGS-freopen64.c += -fexceptions
 CFLAGS-freopen.c += -fexceptions
 CFLAGS-fseek.c += -fexceptions
@@ -164,6 +162,14 @@ CFLAGS-iofflush_u.c += $(config-cflags-wno-ignored-attributes)
 CFLAGS-putc_u.c += $(config-cflags-wno-ignored-attributes)
 CFLAGS-iofgets_u.c += $(config-cflags-wno-ignored-attributes)
 CFLAGS-iofputs_u.c += $(config-cflags-wno-ignored-attributes)
+CFLAGS-printf.c += -fexceptions -Wno-uninitialized
+CFLAGS-fprintf.c += -fexceptions
+CFLAGS-wprintf.c += -fexceptions -Wno-uninitialized
+CFLAGS-fwprintf.c += -fexceptions
+CFLAGS-scanf.c += -fexceptions -Wno-uninitialized
+CFLAGS-fscanf.c += -fexceptions
+CFLAGS-wscanf.c += -fexceptions -Wno-uninitialized
+CFLAGS-fwscanf.c += -fexceptions
 # XXX Do we need filedoalloc and wfiledoalloc?  Others?
 
 CFLAGS-tst_putwc.c += -DOBJPFX=\"$(objpfx)\"

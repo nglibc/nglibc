@@ -6,6 +6,9 @@
 *.bz2
 *.rej
 *.orig
+*.o
+a.out
+
 =*
 TAGS
 TODO

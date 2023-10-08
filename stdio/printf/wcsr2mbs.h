@@ -1,55 +1,33 @@
 #include <wchar.h>
+#include <errno.h>
 
-size_t wcsrtombs(char *restrict s, const wchar_t **restrict ws, size_t n, mbstate_t *restrict st)
+/* Up to 3 bytes of s may be left unutilised, and return value reflects this */
+static size_t wcsr2mbs(char *restrict s, const wchar_t **restrict ws, size_t n)
 {
-	const wchar_t *ws2;
-	char buf[4];
-	size_t N = n, l;
-	if (!s) {
-		for (n=0, ws2=*ws; *ws2; ws2++) {
-			if (*ws2 >= 0x80u) {
-				l = wcrtomb(buf, *ws2, 0);
-				if (!(l+1)) return -1;
-				n += l;
-			} else n++;
-		}
-		return n;
-	}
-	while (n>=4) {
-		if (**ws-1u >= 0x7fu) {
-			if (!**ws) {
+	size_t N = n;
+	while (n >= 4) {
+		wchar_t wc = **ws;
+		if (wc-1u < 0x7Fu) {
+			*s++ = wc;
+			n--;
+		} else {
+			int sh;
+			if (!wc) {
 				*s = 0;
 				*ws = 0;
 				return N-n;
 			}
-			l = wcrtomb(s, **ws, 0);
-			if (!(l+1)) return -1;
-			s += l;
-			n -= l;
-		} else {
-			*s++ = **ws;
-			n--;
-		}
-		(*ws)++;
-	}
-	while (n) {
-		if (**ws-1u >= 0x7fu) {
-			if (!**ws) {
-				*s = 0;
-				*ws = 0;
-				return N-n;
+			if (wc < 0x800u) sh = 8; else {
+				if (wc < 0xD800u || wc-0xE000u < 0x2000u) sh = 12;
+				else if (wc-0x10000u < 0x100000) *s++ = wc>>(sh=18) | 0xF0;
+				else return (void)(errno = EILSEQ), -1;
+				*s++ = wc>>12 & 0x3F | (26-sh)<<4; // 26-sh is either 0xE or 0x8
 			}
-			l = wcrtomb(buf, **ws, 0);
-			if (!(l+1)) return -1;
-			if (l>n) return N-n;
-			wcrtomb(s, **ws, 0);
-			s += l;
-			n -= l;
-		} else {
-			*s++ = **ws;
-			n--;
+			*s++ = wc>>6 & 0x3F | 0x80 | (sh==8)<<6;
+			*s++ = wc>>0 & 0x3F | 0x80;
+			n -= sh / 4; //Dividing sh by 4 is faster than dividing by 6 & adding 1
 		}
 		(*ws)++;
 	}
-	return N;
+	return N-n;
 }

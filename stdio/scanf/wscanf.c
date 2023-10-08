@@ -1,16 +1,31 @@
+#ifdef _LIBC
+#include <features.h>
+#undef  __GLIBC_USE_DEPRECATED_SCANF
+#define __GLIBC_USE_DEPRECATED_SCANF 1
+#endif
+#include <wchar.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <ctype.h>
-#include <wchar.h>
 #include <wctype.h>
 #include <limits.h>
 #include <string.h>
+#include "scanbuf.h"
+#include "wc2mb.h"
 
-#include "stdio_impl.h"
-#include "shgetc.h"
-#include "intscan.h"
-#include "floatscan.h"
+#undef  getwc
+#define getwc(f) \
+	(rdbuf(f)->gptr != rdbuf(f)->egptr && *rdbuf(f)->gptr<128U ? (unsigned char)*rdbuf(f)->gptr++ : (__fgetwc_unlocked)(f))
+
+#undef  ungetwc
+#define ungetwc(c,f) \
+	(rdbuf(f)->egptr && (c)<128U ? (unsigned char)*--rdbuf(f)->gptr : __ungetwc((c),(f)))
+
+int    __lockfile  (FILE *);
+int    __unlockfile(FILE *);
+wint_t __ungetwc(wint_t, FILE *);
+wint_t __fgetwc_unlocked(FILE *);
 
 #define SIZE_hh -2
 #define SIZE_h  -1
@@ -73,17 +88,7 @@ static int in_set(const wchar_t *set, int c)
 	return 0;
 }
 
-#if 1
-#undef getwc
-#define getwc(f) \
-	((f)->rpos != (f)->rend && *(f)->rpos < 128 ? *(f)->rpos++ : (getwc)(f))
-
-#undef ungetwc
-#define ungetwc(c,f) \
-	((f)->rend && (c)<128U ? *--(f)->rpos : ungetwc((c),(f)))
-#endif
-
-int vfwscanf(FILE *restrict f, const wchar_t *restrict fmt, va_list ap)
+int __vfwscanf(FILE *restrict f, const wchar_t *restrict fmt, va_list ap)
 {
 	int width;
 	int size;
@@ -100,11 +105,9 @@ int vfwscanf(FILE *restrict f, const wchar_t *restrict fmt, va_list ap)
 	char tmp[3*sizeof(int)+10];
 	const wchar_t *set;
 	size_t i, k;
+	int unlock = rdstate(f) & F_NEEDLOCK ? __lockfile(f) : 0;
 
-	FLOCK(f);
-
-	fwide(f, 1);
-
+	if (~rdstate(f) & F_WIDE) fwide(f, 1);
 	for (p=fmt; *p; p++) {
 
 		alloc = 0;
@@ -325,8 +328,32 @@ match_fail:
 			free(wcs);
 		}
 	}
-	FUNLOCK(f);
+	if (unlock) __unlockfile(f);
 	return matches;
 }
 
-weak_alias(vfwscanf,__isoc99_vfwscanf);
+int __vwscanf(const wchar_t *restrict fmt, va_list ap)
+{
+	return __vfwscanf(stdin, fmt, ap);
+}
+
+int __wscanf(const wchar_t *restrict fmt, ...)
+{
+	int ret;
+	va_list ap;
+	va_start(ap, fmt);
+	ret = __vfwscanf(stdin, fmt, ap);
+	va_end(ap);
+	return ret;
+}
+
+
+#ifdef _LIBC
+#include "libioP.h"
+ldbl_strong_alias (__vfwscanf, __isoc99_vfwscanf)
+ldbl_strong_alias (__vwscanf,  __isoc99_vwscanf)
+ldbl_strong_alias (__wscanf,   __isoc99_wscanf)
+ldbl_weak_alias   (__vfwscanf, vfwscanf)
+ldbl_strong_alias (__vwscanf,  vwscanf)
+ldbl_strong_alias (__wscanf,   wscanf)
+#endif

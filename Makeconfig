@@ -863,7 +863,7 @@ else
 endif
 +gccwarn += -Wundef
 ifeq ($(enable-werror),yes)
-+gccwarn += -Werror
++gccwarn += -Werror -Wno-parentheses
 endif
 +gccwarn-c = -Wstrict-prototypes -Wold-style-definition
 

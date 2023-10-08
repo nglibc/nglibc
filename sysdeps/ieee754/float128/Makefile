@@ -1,5 +1,5 @@
 ifeq ($(subdir),stdlib)
-routines += float1282mpn strfromf128
+routines += float1282mpn
 routines += strtof128 strtof128_l strtof128_nan mpn2float128
 
 # The strfrom class of functions call __printf_fp in order to convert the

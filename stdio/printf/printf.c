@@ -1,4 +1,4 @@
-#include "stdio_impl.h"
+#include <stdio.h>
 #include <errno.h>
 #include <ctype.h>
 #include <limits.h>
@@ -6,15 +6,24 @@
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include <wchar.h>
 #include <inttypes.h>
 #include <math.h>
 #include <float.h>
+#include "rdstate.h"
+#include "wc2mb.h"
+
+int     __lockfile  (FILE *f);
+int     __unlockfile(FILE *f);
+int     __towrite   (FILE *);
+size_t  __fwritex   (const char *, size_t, FILE *);
 
 /* Some useful macros */
+#define ARGMAX            32 // we can't use glibc NL_ARGMAX
 
+#ifndef _LIBC
 #define MAX(a,b) ((a)>(b) ? (a) : (b))
 #define MIN(a,b) ((a)<(b) ? (a) : (b))
+#endif
 
 /* Convenient bit representation for modifier flags, which all fall
  * within 31 codepoints of the space character. */
@@ -132,7 +141,7 @@ static void pop_arg(union arg *arg, int type, va_list *ap)
 
 static void out(FILE *f, const char *s, size_t l)
 {
-	if (!ferror(f)) __fwritex((void *)s, l, f);
+	if (~rdstate(f) & F_ERR) __fwritex((void *)s, l, f);
 }
 
 static void pad(FILE *f, char c, int w, int l, int fl)
@@ -198,7 +207,7 @@ static int fmt_fp(FILE *f, long double y, int w, int p, int fl, int t)
 	} else prefix++, pl=0;
 
 	if (!isfinite(y)) {
-		char *s = (t&32)?"inf":"INF";
+		const char *s = (t&32)?"inf":"INF";
 		if (y!=y) s=(t&32)?"nan":"NAN";
 		pad(f, ' ', w, 3+pl, fl&~ZERO_PAD);
 		out(f, prefix, pl);
@@ -531,7 +540,7 @@ static int printf_core(FILE *f, const char *fmt, va_list *ap, union arg *nl_arg,
 		if (!f) continue;
 
 		/* Do not process any new directives once in error state. */
-		if (ferror(f)) return -1;
+		if (rdstate(f) & F_ERR) return -1;
 
 		z = buf + sizeof(buf);
 		prefix = "-+   0X0x";
@@ -595,7 +604,7 @@ static int printf_core(FILE *f, const char *fmt, va_list *ap, union arg *nl_arg,
 		case 'm':
 			if (1) a = strerror(errno); else
 		case 's':
-			a = arg.p ? arg.p : "(null)";
+			a = arg.p ? arg.p : (char *) "(null)";
 			z = a + strnlen(a, p<0 ? INT_MAX : p);
 			if (p<0 && *z) goto overflow;
 			p = z-a;
@@ -645,10 +654,10 @@ static int printf_core(FILE *f, const char *fmt, va_list *ap, union arg *nl_arg,
 	if (f) return cnt;
 	if (!l10n) return 0;
 
-	for (i=1; i<=NL_ARGMAX && nl_type[i]; i++)
+	for (i=1; i<=ARGMAX && nl_type[i]; i++)
 		pop_arg(nl_arg+i, nl_type[i], ap);
-	for (; i<=NL_ARGMAX && !nl_type[i]; i++);
-	if (i<=NL_ARGMAX) goto inval;
+	for (; i<=ARGMAX && !nl_type[i]; i++);
+	if (i<=ARGMAX) goto inval;
 	return 1;
 
 inval:
@@ -659,14 +668,12 @@ overflow:
 	return -1;
 }
 
-int vfprintf(FILE *restrict f, const char *restrict fmt, va_list ap)
+int __vfprintf(FILE *restrict f, const char *restrict fmt, va_list ap)
 {
 	va_list ap2;
-	int nl_type[NL_ARGMAX+1] = {0};
-	union arg nl_arg[NL_ARGMAX+1];
-	unsigned char internal_buf[80], *saved_buf = 0;
-	int olderr;
-	int ret;
+	int nl_type[ARGMAX+1] = {0}, unlock, olderr, ret;
+	union arg nl_arg[ARGMAX+1];
+	//unsigned char internal_buf[80], *saved_buf = 0;
 
 	/* the copy allows passing va_list* even if va_list is an array */
 	va_copy(ap2, ap);
@@ -675,27 +682,53 @@ int vfprintf(FILE *restrict f, const char *restrict fmt, va_list ap)
 		return -1;
 	}
 
-	FLOCK(f);
-	olderr = f->flags & F_ERR;
-	f->flags &= ~F_ERR;
-	if (!f->buf_size) {
-		saved_buf = f->buf;
-		f->buf = internal_buf;
-		f->buf_size = sizeof internal_buf;
-		f->wpos = f->wbase = f->wend = 0;
-	}
-	if (!f->wend && __towrite(f)) ret = -1;
-	else ret = printf_core(f, fmt, &ap2, nl_arg, nl_type);
-	if (saved_buf) {
-		f->write(f, 0, 0);
-		if (!f->wpos) ret = -1;
-		f->buf = saved_buf;
-		f->buf_size = 0;
-		f->wpos = f->wbase = f->wend = 0;
-	}
-	if (ferror(f)) ret = -1;
-	f->flags |= olderr;
-	FUNLOCK(f);
+	unlock = rdstate(f) & F_NEEDLOCK ? __lockfile(f) : 0;
+	olderr = rdstate(f) & F_ERR;
+	rdstate(f) &= ~F_ERR;
+	//TODO:if (!f->buf_size) {
+	//	saved_buf = f->buf;
+	//	f->buf = internal_buf;
+	//	f->buf_size = sizeof internal_buf;
+	//	f->wpos = f->wbase = f->wend = 0;
+	//}
+	ret = __towrite(f) == 0 ? printf_core(f, fmt, &ap2, nl_arg, nl_type) : -1;
+	//if (saved_buf) {
+	//	f->write(f, 0, 0);
+	//	if (!f->wpos) ret = -1;
+	//	f->buf = saved_buf;
+	//	f->buf_size = 0;
+	//	f->wpos = f->wbase = f->wend = 0;
+	//}
+	if (rdstate(f) & F_ERR) ret = -1;
+	rdstate(f) |= olderr;
+	if (unlock) __unlockfile(f);
 	va_end(ap2);
 	return ret;
 }
+
+int __vprintf(const char *restrict fmt, va_list ap)
+{
+	return __vfprintf(stdout, fmt, ap);
+}
+
+
+int __printf(const char *restrict fmt, ...)
+{
+	int ret;
+	va_list ap;
+	va_start(ap, fmt);
+	ret = __vfprintf(stdout, fmt, ap);
+	va_end(ap);
+	return ret;
+}
+
+
+#ifdef _LIBC
+#include "libioP.h"
+ldbl_strong_alias (__vfprintf, _IO_vfprintf);
+ldbl_strong_alias (__printf,   _IO_printf);
+ldbl_strong_alias (__vfprintf, vfprintf);
+ldbl_hidden_def   (__vfprintf, vfprintf)
+ldbl_strong_alias (__vprintf,  vprintf)
+ldbl_strong_alias (__printf,   printf);
+#endif

@@ -3,7 +3,6 @@
 #include <stdarg.h>
 #include <monetary.h>
 #include <errno.h>
-#include "locale_impl.h"
 
 static ssize_t vstrfmon_l(char *s, size_t n, locale_t loc, const char *fmt, va_list ap)
 {
@@ -22,10 +21,10 @@ static ssize_t vstrfmon_l(char *s, size_t n, locale_t loc, const char *fmt, va_l
 		fmt++;
 		if (*fmt == '%') goto literal;
 
-		fill = ' ';
-		nogrp = 0;
-		negpar = 0;
-		nosym = 0;
+		(void)(fill = ' ');
+		(void)(nogrp = 0);
+		(void)(negpar = 0);
+		(void)(nosym = 0);
 		left = 0;
 		for (; ; fmt++) {
 			switch (*fmt) {
@@ -58,7 +57,7 @@ static ssize_t vstrfmon_l(char *s, size_t n, locale_t loc, const char *fmt, va_l
 		if (*fmt=='.') for (rp=0, fmt++; isdigit(*fmt); fmt++)
 			rp = 10*rp + (*fmt-'0');
 
-		intl = *fmt++ == 'i';
+		(void)(intl = *fmt++ == 'i');
 
 		w = lp + 1 + rp;
 		if (!left && fw>w) w = fw;
@@ -94,7 +93,7 @@ ssize_t strfmon(char *restrict s, size_t n, const char *restrict fmt, ...)
 	ssize_t ret;
 
 	va_start(ap, fmt);
-	ret = vstrfmon_l(s, n, CURRENT_LOCALE, fmt, ap);
+	ret = vstrfmon_l(s, n, NULL, fmt, ap);
 	va_end(ap);
 
 	return ret;
