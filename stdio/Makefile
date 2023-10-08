@@ -40,7 +40,7 @@ routines	:=							      \
 	iofgetpos64 iofopen64 iofsetpos64 putchar putchar_u 		      \
 	iowpadn wgenops wstrops wfileops iofwide wmemstream		      \
 									      \
-	clearerr feof ferror fileno fputc freopen fseek getc getchar	      \
+	clearerr iofeof ioferror fileno iofputc freopen iofseek getc getchar  \
 	memstream pclose putc putchar rewind setbuf setlinebuf      	      \
 	fcloseall fseeko ftello	freopen64 fseeko64 ftello64		      \
 									      \
@@ -97,11 +97,11 @@ CPPFLAGS += $(libio-mtsafe)
 
 # Support for exception handling.
 CFLAGS-fileops.c += -fexceptions
-CFLAGS-fputc.c += -fexceptions
+CFLAGS-iofputc.c += -fexceptions
 CFLAGS-fputwc.c += -fexceptions
 CFLAGS-freopen64.c += -fexceptions
 CFLAGS-freopen.c += -fexceptions
-CFLAGS-fseek.c += -fexceptions
+CFLAGS-iofseek.c += -fexceptions
 CFLAGS-fseeko64.c += -fexceptions
 CFLAGS-fseeko.c += -fexceptions
 CFLAGS-ftello64.c += -fexceptions
