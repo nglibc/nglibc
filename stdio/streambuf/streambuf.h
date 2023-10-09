@@ -7,15 +7,28 @@
 
 #define rdstate(f)      (*(unsigned *)(f))
 #define rdbuf(f)        ((streambuf *)(f))
+#define F_SVB             0x00001
 #define F_NORD            0x00004
 #define F_NOWR            0x00008
 #define F_EOF             0x00010
 #define F_ERR             0x00020
+#define F_LINKED          0x00080
 #define F_LBF             0x00200
 #define F_CURWR           0x00800
+#define F_APP             0x01000
 #define F_ORIENTED        0x04000
 #define F_NEEDLOCK        0x08000
 #define F_WIDE            0x10000
+
+#define UNGET             0x00008
+
+#define getc_unlocked(f) \
+        ( (rdbuf((f))->gptr != rdbuf((f))->egptr) \
+		? (unsigned char)*rdbuf((f))->gptr++ : __uflowx((f)) )
+
+#define putc_unlocked(c, f) \
+        ( (c)!='\n' && rdbuf((f))->pptr!=rdbuf((f))->epptr \
+        ? *rdbuf((f))->pptr++ = (unsigned char)(c):__overflowx((f),(unsigned char)(c)) )
 
 typedef struct _IO_cookie_io_functions_t jumptable_t;
 typedef struct _IO_FILE FILE;

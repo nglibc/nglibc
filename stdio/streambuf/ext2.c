@@ -1,24 +1,22 @@
-#include "stdio_impl.h"
+#include <stdio.h>
 #include <stdio_ext.h>
+#include "streambuf.h"
 
-size_t __freadahead(FILE *f)
-{
-	return f->rend ? f->rend - f->rpos : 0;
-}
-
+#if 0 //TODO:
 const char *__freadptr(FILE *f, size_t *sizep)
 {
-	if (f->rpos == f->rend) return 0;
-	*sizep = f->rend - f->rpos;
-	return (const char *)f->rpos;
+	if (f->gptr == f->egptr) return 0;
+	*sizep = f->egptr - f->gptr;
+	return (const char *)f->gptr;
 }
 
 void __freadptrinc(FILE *f, size_t inc)
 {
-	f->rpos += inc;
+	rdbuf(f)->gptr += inc;
 }
 
 void __fseterr(FILE *f)
 {
-	f->flags |= F_ERR;
+	rdstate(f) |= F_ERR;
 }
+#endif

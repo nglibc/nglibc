@@ -1,6 +1,7 @@
-#include "stdio_impl.h"
+#include <stdio.h>
+#include "streambuf.h"
 
-int getchar_unlocked(void)
+int (getchar_unlocked)(void)
 {
 	return getc_unlocked(stdin);
 }

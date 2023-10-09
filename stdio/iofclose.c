@@ -30,7 +30,7 @@
 #include <shlib-compat.h>
 
 int
-_IO_new_fclose (FILE *fp)
+_IO_compat_fclose (FILE *fp)
 {
   int status;
 
@@ -75,6 +75,3 @@ _IO_new_fclose (FILE *fp)
   return status;
 }
 
-versioned_symbol (libc, _IO_new_fclose, _IO_fclose, GLIBC_2_1);
-strong_alias (_IO_new_fclose, __new_fclose)
-versioned_symbol (libc, __new_fclose, fclose, GLIBC_2_1);

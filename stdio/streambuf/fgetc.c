@@ -1,22 +1,25 @@
-#include "stdio_impl.h"
-#include "pthread_impl.h"
+#include <stdio.h>
+#include "streambuf.h"
 
-#ifdef __GNUC__
-__attribute__((__noinline__))
+int (_IO_getc)(FILE *f)
+{
+	int ret;
+	int unlock = rdstate(f) & F_NEEDLOCK ? __lockfile(f) : 0;
+	ret = getc_unlocked (f);
+	if (unlock) __unlockfile(f);
+	return ret;
+}
+
+int (getchar)(void)
+{
+	return (_IO_getc)(stdout);
+}
+
+
+#ifdef _LIBC
+#include "libioP.h"
+#undef getc
+#undef _IO_getc
+weak_alias (_IO_getc, getc)
+weak_alias (_IO_getc, fgetc)
 #endif
-static int locking_getc(FILE *f)
-{
-	if (a_cas(&f->lock, 0, MAYBE_WAITERS-1)) __lockfile(f);
-	int c = getc_unlocked(f);
-	if (a_swap(&f->lock, 0) & MAYBE_WAITERS)
-		__wake(&f->lock, 1, 1);
-	return c;
-}
-
-static inline int do_getc(FILE *f)
-{
-	int l = f->lock;
-	if (l < 0 || l && (l & ~MAYBE_WAITERS) == __pthread_self()->tid)
-		return getc_unlocked(f);
-	return locking_getc(f);
-}

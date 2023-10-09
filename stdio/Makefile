@@ -32,23 +32,17 @@ headers	:= stdio.h \
 	   bits/types/__fpos_t.h bits/types/__fpos64_t.h \
 	   bits/types/cookie_io_functions_t.h
 
-routines	:=							      \
-	filedoalloc iofclose iofdopen iofflush iofgetpos iofgets iofopen      \
-	iofopncook iofputs iofread iofsetpos ioftell wfiledoalloc	      \
-	iofwrite iogetdelim iogetline iogets iopadn iopopen ioputs	      \
-	ioseekoff ioseekpos iosetbuffer iosetvbuf ioungetc		      \
-	iofgetpos64 iofopen64 iofsetpos64 putchar putchar_u 		      \
+routines	:= iofdopen \
+	iofopncook iopopen pclose memstream fileno iofopen freopen freopen64  \
+	iofclose ioseekoff ioftell iosetvbuf filedoalloc wfiledoalloc	      \
 	iowpadn wgenops wstrops wfileops iofwide wmemstream		      \
 									      \
-	clearerr iofeof ioferror fileno iofputc freopen iofseek getc getchar  \
-	memstream pclose putc putchar rewind setbuf setlinebuf      	      \
-	fcloseall fseeko ftello	freopen64 fseeko64 ftello64		      \
-									      \
-	__fbufsize __freading __fwriting __freadable __fwritable __flbf	      \
-	__fpurge __fsetlocking sbtoread sbtowrite sbmisc lockfile sbfwide     \
+	clearerror feof ferror setvbuf fseek ftell fsetpos fclose fflush      \
+	ofl ofl_add ext sbtoread sbtowrite sbmisc sbflush lockfile sbfwide    \
+	fgetc ungetc fgets gets getdelim getw fread \
 	uflow shgetc intscan floatscan mbfuncs fmodl scanf fscanf sscanf      \
-	fgetwc ungetwc fgetws wscanf fwscanf swscanf			      \
-	overflow fwrite perror printf fprintf snprintf sprintf asprintf	      \
+	fgetwc ungetwc fgetws wscanf fwscanf swscanf fputc fputs puts putw    \
+	padn fwrite overflow perror printf fprintf snprintf sprintf asprintf  \
 	fputwc fputws wprintf fwprintf swprintf dprintf stdio_write	      \
 	strfromd strfroml debug_compat libc_fatal fmemopen oldfmemopen vtables
 
@@ -88,53 +82,72 @@ routines += oldiofopen oldiofdopen oldiofclose oldiopopen oldpclose \
 endif
 
 ifeq (yes,$(libc-reentrant))
-routines += clearerr_u feof_u ferror_u fputc_u getc_u getchar_u		      \
-	    iofflush_u putc_u putchar_u peekc iofread_u iofwrite_u iofgets_u  \
-	    iofputs_u
+routines += clearerr_u feof_u ferror_u \
+	    getc_unlocked getchar_unlocked putc_unlocked putchar_unlocked
 endif
 
 CPPFLAGS += $(libio-mtsafe)
 
 # Support for exception handling.
 CFLAGS-fileops.c += -fexceptions
+CFLAGS-fgetc.c += -fexceptions
+CFLAGS-fputc.c += -fexceptions
 CFLAGS-iofputc.c += -fexceptions
 CFLAGS-fputwc.c += -fexceptions
 CFLAGS-freopen64.c += -fexceptions
 CFLAGS-freopen.c += -fexceptions
+CFLAGS-fseek.c += -fexceptions
 CFLAGS-iofseek.c += -fexceptions
 CFLAGS-fseeko64.c += -fexceptions
 CFLAGS-fseeko.c += -fexceptions
 CFLAGS-ftello64.c += -fexceptions
 CFLAGS-ftello.c += -fexceptions
 CFLAGS-fwide.c += -fexceptions
+CFLAGS-sbfwide.c += -fexceptions
 CFLAGS-genops.c += -fexceptions
 CFLAGS-getc.c += -fexceptions
 CFLAGS-getchar.c += -fexceptions
 CFLAGS-getwc.c += -fexceptions
 CFLAGS-getwchar.c += -fexceptions
+CFLAGS-fclose.c += -fexceptions
 CFLAGS-iofclose.c += -fexceptions
+CFLAGS-fflush.c += -fexceptions
 CFLAGS-iofflush.c += -fexceptions $(config-cflags-wno-ignored-attributes)
 CFLAGS-iofgetpos64.c += -fexceptions
 CFLAGS-iofgetpos.c += -fexceptions
+CFLAGS-fgets.c += -fexceptions
 CFLAGS-iofgets.c += -fexceptions
+CFLAGS-fgetws.c += -fexceptions
 CFLAGS-iofgetws.c += -fexceptions
+CFLAGS-fputs.c += -fexceptions
 CFLAGS-iofputs.c += -fexceptions $(config-cflags-wno-ignored-attributes)
+CFLAGS-fputws.c += -fexceptions
 CFLAGS-iofputws.c += -fexceptions
+CFLAGS-fread.c += -fexceptions
 CFLAGS-iofread.c += -fexceptions
 CFLAGS-iofsetpos64.c += -fexceptions
+CFLAGS-fsetpos.c += -fexceptions
 CFLAGS-iofsetpos.c += -fexceptions
+CFLAGS-ftell.c += -fexceptions
 CFLAGS-ioftell.c += -fexceptions
+CFLAGS-fwrite.c += -fexceptions
 CFLAGS-iofwrite.c += -fexceptions $(config-cflags-wno-ignored-attributes)
+CFLAGS-getdelim.c += -fexceptions
 CFLAGS-iogetdelim.c += -fexceptions
 CFLAGS-iogetline.c += -fexceptions
+CFLAGS-gets.c += -fexceptions
 CFLAGS-iogets.c += -fexceptions
 CFLAGS-iogetwline.c += -fexceptions
+CFLAGS-puts.c += -fexceptions
 CFLAGS-ioputs.c += -fexceptions
 CFLAGS-ioseekoff.c += -fexceptions
 CFLAGS-ioseekpos.c += -fexceptions
 CFLAGS-iosetbuffer.c += -fexceptions
+CFLAGS-setvbuf.c += -fexceptions
 CFLAGS-iosetvbuf.c += -fexceptions
+CFLAGS-ungetc.c += -fexceptions
 CFLAGS-ioungetc.c += -fexceptions
+CFLAGS-ungetwc.c += -fexceptions
 CFLAGS-ioungetwc.c += -fexceptions
 CFLAGS-oldfileops.c += -fexceptions
 CFLAGS-oldiofclose.c += -fexceptions

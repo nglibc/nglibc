@@ -2,6 +2,11 @@
 #include <stdio.h>
 #include "streambuf.h"
 
+#ifdef _LIBC
+#define __overflow _IO_overflow
+int     __overflow(FILE *f, int c);
+#endif
+
 int __overflowx(FILE *f, int ch)
 {
 	unsigned char c = ch;
@@ -13,3 +18,11 @@ int __overflowx(FILE *f, int ch)
 	if (sb->virt->write(f, (char *)&c, 1)!=1) return EOF;
 	return c;
 }
+
+
+#ifdef _LIBC
+#include "libioP.h"
+#undef __overflow
+strong_alias (__overflowx, __overflow)
+libc_hidden_def (__overflow)
+#endif

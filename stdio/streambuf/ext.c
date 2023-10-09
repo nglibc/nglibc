@@ -1,12 +1,9 @@
-#define _GNU_SOURCE
-#include "stdio_impl.h"
+#define _GNU_SOURCE 1
+#include <stdio.h>
 #include <stdio_ext.h>
+#include "streambuf.h"
 
-void _flushlbf(void)
-{
-	fflush(0);
-}
-
+#undef __fsetlocking
 int __fsetlocking(FILE *f, int type)
 {
 	return 0;
@@ -14,44 +11,34 @@ int __fsetlocking(FILE *f, int type)
 
 int __fwriting(FILE *f)
 {
-	return (f->flags & F_NORD) || f->wend;
+	return (rdstate(f) & F_NORD) || (rdstate(f) & F_CURWR);
 }
 
 int __freading(FILE *f)
 {
-	return (f->flags & F_NOWR) || f->rend;
+	return (rdstate(f) & F_NOWR) || !__fwriting(f) && rdbuf(f)->egptr;
 }
 
 int __freadable(FILE *f)
 {
-	return !(f->flags & F_NORD);
+	return !(rdstate(f) & F_NORD);
 }
 
 int __fwritable(FILE *f)
 {
-	return !(f->flags & F_NOWR);
+	return !(rdstate(f) & F_NOWR);
 }
 
 int __flbf(FILE *f)
 {
-	return f->lbf >= 0;
+	return (rdstate(f) & F_LBF);
 }
 
 size_t __fbufsize(FILE *f)
 {
-	return f->buf_size;
+	return rdbuf(f)->bufend - rdbuf(f)->buf;
 }
 
-size_t __fpending(FILE *f)
-{
-	return f->wend ? f->wpos - f->wbase : 0;
-}
-
-int __fpurge(FILE *f)
-{
-	f->wpos = f->wbase = f->wend = 0;
-	f->rpos = f->rend = 0;
-	return 0;
-}
-
-weak_alias(__fpurge, fpurge);
+#ifdef _LIBC
+libc_hidden_def (__fsetlocking)
+#endif

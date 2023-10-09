@@ -1,10 +1,14 @@
-#include "stdio_impl.h"
+#include <stdio.h>
+#include "streambuf.h"
 
-void clearerr(FILE *f)
+void __clearerr(FILE *f)
 {
-	FLOCK(f);
-	f->flags &= ~(F_EOF|F_ERR);
-	FUNLOCK(f);
+	int unlock = (rdstate(f) & F_NEEDLOCK) ? __lockfile(f) : 0;
+	rdstate(f) &= ~(F_EOF|F_ERR);
+	if (unlock) __unlockfile(f);
 }
 
-weak_alias(clearerr, clearerr_unlocked);
+
+#ifdef _LIBC
+weak_alias (__clearerr, clearerr)
+#endif

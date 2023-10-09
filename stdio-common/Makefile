@@ -37,8 +37,6 @@ routines := \
   ftrylockfile \
   funlockfile \
   gentempfd \
-  getline \
-  getw \
   grouping_iterator \
   itoa-digits \
   itoa-udigits \
@@ -58,7 +56,6 @@ routines := \
   printf_size \
   psiginfo \
   psignal \
-  putw \
   reg-modifier \
   reg-printf \
   reg-type \

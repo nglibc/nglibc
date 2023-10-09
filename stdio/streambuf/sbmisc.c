@@ -29,6 +29,11 @@ size_t __fpending(FILE *f)
         return rdbuf(f)->epptr ? rdbuf(f)->pptr - rdbuf(f)->pbase : 0;
 }
 
+size_t __freadahead(FILE *f)
+{
+	return rdbuf(f)->egptr ? rdbuf(f)->egptr - rdbuf(f)->gptr : 0;
+}
+
 char *__pbase(FILE *f)
 {
         return rdbuf(f)->pbase;

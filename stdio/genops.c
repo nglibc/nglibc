@@ -195,14 +195,14 @@ _IO_free_backup_area (FILE *fp)
 libc_hidden_def (_IO_free_backup_area)
 
 int
-__overflow (FILE *f, int ch)
+_IO_overflow (FILE *f, int ch)
 {
   /* This is a single-byte stream.  */
   if (f->_mode == 0)
     _IO_fwide (f, -1);
   return _IO_OVERFLOW (f, ch);
 }
-libc_hidden_def (__overflow)
+//libc_hidden_def (__overflow)
 
 static int
 save_for_backup (FILE *fp, char *end_p)
@@ -295,7 +295,7 @@ __underflow (FILE *fp)
 libc_hidden_def (__underflow)
 
 int
-__uflow (FILE *fp)
+_IO_uflow (FILE *fp)
 {
   if (_IO_vtable_offset (fp) == 0 && _IO_fwide (fp, -1) != -1)
     return EOF;
@@ -322,7 +322,7 @@ __uflow (FILE *fp)
     _IO_free_backup_area (fp);
   return _IO_UFLOW (fp);
 }
-libc_hidden_def (__uflow)
+//libc_hidden_def (__uflow)
 
 void
 _IO_setb (FILE *f, char *b, char *eb, int a)
@@ -403,6 +403,12 @@ _IO_default_xsputn (FILE *f, const void *data, size_t n)
   return n - more;
 }
 libc_hidden_def (_IO_default_xsputn)
+
+size_t
+(_IO_sputn) (FILE *fp, void *data, size_t n)
+{
+  return _IO_XSPUTN (fp, data, n);
+}
 
 size_t
 _IO_sgetn (FILE *fp, void *data, size_t n)

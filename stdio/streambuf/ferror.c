@@ -1,14 +1,16 @@
-#include "stdio_impl.h"
+#include <stdio.h>
+#include "streambuf.h"
 
-#undef ferror
-
-int ferror(FILE *f)
+int _IO_ferror(FILE *f)
 {
-	FLOCK(f);
-	int ret = !!(f->flags & F_ERR);
-	FUNLOCK(f);
-	return ret;
+	int unlock = (rdstate(f) & F_NEEDLOCK) ? __lockfile(f) : 0;
+	int result = !!(rdstate(f) & F_ERR);
+	if (unlock) __unlockfile(f);
+	return result;
 }
 
-weak_alias(ferror, ferror_unlocked);
-weak_alias(ferror, _IO_ferror_unlocked);
+
+#ifdef _LIBC
+#include "libioP.h"
+weak_alias (_IO_ferror, ferror)
+#endif

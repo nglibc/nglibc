@@ -1,18 +1,9 @@
-#include "stdio_impl.h"
-#include "lock.h"
-#include "fork_impl.h"
+#include <stdio.h>
+#include "streambuf.h"
 
-static FILE *ofl_head;
-static volatile int ofl_lock[1];
-volatile int *const __stdio_ofl_lockptr = ofl_lock;
+streambuf __ofl_head = {
+	.prev  = (void *)&__ofl_head,
+	.next  = (void *)&__ofl_head,
+	.lock  = (void *)&__ofl_head.lock_data,
+};
 
-FILE **__ofl_lock()
-{
-	LOCK(ofl_lock);
-	return &ofl_head;
-}
-
-void __ofl_unlock()
-{
-	UNLOCK(ofl_lock);
-}
